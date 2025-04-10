@@ -27,3 +27,4 @@ typedef struct {
 /* Global definitions */
 
 extern UART_Handle_t handle;
+extern volatile uint8_t buffer[10];

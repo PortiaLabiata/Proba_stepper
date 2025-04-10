@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "main.h"
 #include "service.h"
 
@@ -28,6 +30,8 @@ uint8_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir);
 uint8_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold);
 uint8_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
 uint8_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
+
+uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd);
 
 /* ISRs */
 

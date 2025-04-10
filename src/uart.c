@@ -23,9 +23,15 @@ uint8_t UART_Recieve(uint8_t *pData, uint32_t size) {
     return SET;
 }
 
-uint8_t ProcessCommand(uint8_t *cmd) {
-    UART_Transmit(cmd, strlen((char*)cmd), MAX_TIMEOUT);
-    handle.command_ready = RESET;
-    UART_Recieve(cmd, 2);
-    return SET;
+/* ISRs */
+
+void USART1_IRQHandler(void) {
+    if (USART1->SR & USART_SR_RXNE_Msk) { // Character recieved
+        if (handle.rx_left == 1) {
+            handle.command_ready = SET;
+        }
+        *handle.cursor = USART1->DR; // Read data and clear RXNE bit
+        handle.cursor++;
+        handle.rx_left--;
+    }
 }
