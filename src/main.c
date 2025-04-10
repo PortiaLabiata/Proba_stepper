@@ -27,7 +27,9 @@ int main(void) {
     Stepper_Init(&stp);
 
     while (1) {
-        Stepper_Step(&stp, CLOCKWISE);
-        delay(10);
+        Stepper_Rotate(&stp, 50, CLOCKWISE, 10);
+        delay(100);
+        Stepper_Rotate(&stp, 50, COUNTERCLOCKWISE, 10);
+        delay(100);
     }
 }
