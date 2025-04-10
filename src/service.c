@@ -60,6 +60,23 @@ uint32_t Get_PCLK2_Freq(void) {
     }
 }
 
+uint32_t Get_PCLK1_Freq(void) {
+    switch (RCC->CFGR & (0b111 << RCC_CFGR_PPRE1_Pos)) {
+        case RCC_CFGR_PPRE1_DIV1:
+            return AHB_FREQ / 1;
+        case RCC_CFGR_PPRE1_DIV2:
+            return AHB_FREQ / 2;
+        case RCC_CFGR_PPRE1_DIV4:
+            return AHB_FREQ / 4;
+        case RCC_CFGR_PPRE1_DIV8:
+            return AHB_FREQ / 8;
+        case RCC_CFGR_PPRE1_DIV16:
+            return AHB_FREQ / 16;
+        default:
+            return 0;
+    }
+}
+
 uint32_t Get_CurrentTick(void) {
     return _current_ticks;
 }

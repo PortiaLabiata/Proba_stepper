@@ -3,6 +3,7 @@
 uint32_t _sysclk_freq = 0;
 uint32_t _ahb_freq = 0;
 uint32_t _pclk2_freq = 0;
+uint32_t _pclk1_freq = 0;
 
 void ClockConfig(void) {
     RCC->CR |= RCC_CR_HSION_Msk; // Starting HSI
@@ -19,6 +20,8 @@ void ClockConfig(void) {
     _sysclk_freq = Get_SYSCLK_Freq();
     _ahb_freq = Get_AHB_Freq();
     _pclk2_freq = Get_PCLK2_Freq();
+    _pclk1_freq = Get_PCLK1_Freq();
+    FLASH->ACR |= FLASH_ACR_LATENCY_2; // Enable flash latency
 
     NVIC_SetPriorityGrouping(4);
     SysTick_Config(AHB_FREQ / 1000); // Set SysTick to fire each ms
@@ -63,4 +66,12 @@ void UART_Config(void) {
 
     NVIC_SetPriority(USART1_IRQn, 0);
     NVIC_EnableIRQ(USART1_IRQn);
+}
+
+void TIM3_Config(void) {
+    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; // Enable clocking
+    TIM3->DIER |= TIM_DIER_UIE; // Enable update event interrupt
+    TIM3->CR1 &= ~(TIM_CR1_CKD_Msk);
+    NVIC_SetPriority(TIM3_IRQn, 0);
+    NVIC_EnableIRQ(TIM3_IRQn);
 }

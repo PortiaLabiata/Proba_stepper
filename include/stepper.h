@@ -17,10 +17,18 @@ typedef struct {
     uint32_t *gpios;
     uint8_t *config;
     volatile uint8_t config_idx;
-} Stepper_t;
+    uint8_t direc;
+    uint32_t steps_left;
+} Stepper_Handle_t;
 
 /* Functions */
 
-uint8_t Stepper_Init(Stepper_t *stp);
-uint8_t Stepper_Step(Stepper_t *stp, uint8_t dir);
-uint8_t Stepper_Rotate(Stepper_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
+uint8_t Stepper_Init(Stepper_Handle_t *stp);
+uint8_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir);
+uint8_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold);
+uint8_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
+uint8_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
+
+/* ISRs */
+
+void TIM3_IRQHandler(void);

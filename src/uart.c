@@ -17,8 +17,15 @@ uint8_t UART_Transmit(uint8_t *pData, uint32_t size, int timeout) {
     return SET;
 }
 
-uint8_t ProcessCommand(void) {
-    UART_Transmit(&handle.command, 1, MAX_TIMEOUT);
+uint8_t UART_Recieve(uint8_t *pData, uint32_t size) {
+    handle.rx_left = size;
+    handle.cursor = pData;
+    return SET;
+}
+
+uint8_t ProcessCommand(uint8_t *cmd) {
+    UART_Transmit(cmd, strlen((char*)cmd), MAX_TIMEOUT);
     handle.command_ready = RESET;
+    UART_Recieve(cmd, 2);
     return SET;
 }

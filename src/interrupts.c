@@ -6,7 +6,10 @@ void SysTick_Handler(void) {
 
 void USART1_IRQHandler(void) {
     if (USART1->SR & USART_SR_RXNE_Msk) { // Character recieved
-        handle.command = USART1->DR; // Read data and clear RXNE bit
-        handle.command_ready = SET;
+        if (handle.rx_left == 0) {
+            handle.command_ready = SET;
+        }
+        *(handle.cursor++) = USART1->DR; // Read data and clear RXNE bit
+        handle.rx_left--;
     }
 }

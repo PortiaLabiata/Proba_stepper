@@ -13,19 +13,16 @@
 #define UART_BAUD_RATE 115200
 #define CMD_BUFFER_SIZE 2
 #define MAX_TIMEOUT -1
+#define STEPPER_DIVIDER 960
 
 /* Typedefs */
 
 typedef struct {
-    volatile uint8_t command;
+    volatile uint8_t *cursor;
     volatile uint8_t error_code;
     volatile uint8_t command_ready;
+    volatile uint32_t rx_left;
 } UART_Handle_t; // Since I don't really need encapsulation, it's fine.
-
-typedef struct {
-    uint32_t gpios;
-} Stepper_Handle_t;
-
 
 /* Global definitions */
 
