@@ -61,7 +61,7 @@ void UART_Config(void) {
     // No need to set M bit, word length=8 bit.
     USART1->CR2 |= (0b00 << USART_CR2_STOP_Pos); // 1 STOP bit, redundant.
 
-    handle.command_ready = RESET;
+    hnd.command_ready = RESET;
     USART1->CR1 |= USART_CR1_RXNEIE; // Enable RXNE interrupt
 
     NVIC_SetPriority(USART1_IRQn, 0);

@@ -24,7 +24,21 @@ typedef struct {
     volatile uint32_t rx_left;
 } UART_Handle_t; // Since I don't really need encapsulation, it's fine.
 
+/**
+ * \struct
+ * \brief Stepper structure. GPIOS should be in form of GPIO_ODR_ODRx_Msk.
+ */
+typedef struct {
+    uint32_t *gpios;
+    uint8_t *config;
+    volatile uint8_t config_idx;
+    uint8_t direc;
+    uint32_t steps_left;
+} Stepper_Handle_t;
+
 /* Global definitions */
 
-extern UART_Handle_t handle;
+extern UART_Handle_t hnd;
 extern volatile uint8_t buffer[10];
+
+uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd, UART_Handle_t *handle);

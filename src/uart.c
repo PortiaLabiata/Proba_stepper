@@ -17,9 +17,9 @@ uint8_t UART_Transmit(uint8_t *pData, uint32_t size, int timeout) {
     return SET;
 }
 
-uint8_t UART_Recieve(uint8_t *pData, uint32_t size) {
-    handle.rx_left = size;
-    handle.cursor = pData;
+uint8_t UART_Recieve(UART_Handle_t *handle, uint8_t *pData, uint32_t size) {
+    handle->rx_left = size;
+    handle->cursor = pData;
     return SET;
 }
 
@@ -27,11 +27,11 @@ uint8_t UART_Recieve(uint8_t *pData, uint32_t size) {
 
 void USART1_IRQHandler(void) {
     if (USART1->SR & USART_SR_RXNE_Msk) { // Character recieved
-        if (handle.rx_left == 1) {
-            handle.command_ready = SET;
+        if (hnd.rx_left == 1) {
+            hnd.command_ready = SET;
         }
-        *handle.cursor = USART1->DR; // Read data and clear RXNE bit
-        handle.cursor++;
-        handle.rx_left--;
+        *hnd.cursor = USART1->DR; // Read data and clear RXNE bit
+        hnd.cursor++;
+        hnd.rx_left--;
     }
 }

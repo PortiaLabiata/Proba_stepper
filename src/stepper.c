@@ -85,23 +85,6 @@ uint8_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold) {
 
 /* Commands handling */
 
-/**
- * \todo Add error handling.
- */
-uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd) {
-    uint32_t steps = atoi((char*)(cmd + 1)) * 50;
-    switch (cmd[0]) {
-        case 'f':
-            Stepper_Rotate_IT(stp, steps, CLOCKWISE, 10);
-            return SET;
-        case 'r':
-            Stepper_Rotate_IT(stp, steps, COUNTERCLOCKWISE, 10);
-            return SET;
-        default:
-            return RESET;
-    }
-}
-
 /* ISRs */
 
 void TIM3_IRQHandler(void) {

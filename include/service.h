@@ -11,3 +11,5 @@ uint32_t Get_PCLK2_Freq(void);
 uint32_t Get_PCLK1_Freq(void);
 uint32_t Get_CurrentTick(void);
 void delay(uint32_t ms);
+
+int atoi(char *c);

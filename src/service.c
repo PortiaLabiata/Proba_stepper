@@ -87,3 +87,7 @@ void delay(uint32_t ms) {
         __NOP();
     }
 }
+
+int atoi(char *c) {
+    return (int)(*c - '0');
+}
