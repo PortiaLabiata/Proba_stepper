@@ -1,14 +1,37 @@
 #include "driver/stepper.h"
 
+/* Typedefs */
+
+/**
+ * \todo Microoptimization: switch from array to single variables. It will make time
+ * of reading a value just a little bit shorter.
+ */
+struct Stepper_Handle {
+    uint32_t *gpios;
+    uint8_t *config;
+    TIM_TypeDef *instance;
+    volatile uint8_t config_idx;
+    uint8_t direc;
+    uint32_t steps_left;
+};
+
+/* Handle pool */
+
+static Stepper_Handle_t _stepper_pool[MAX_STEPPERS];
+static uint8_t _n_steppers;
+
 /* Global definitions */
 
 static Stepper_Handle_t *_stp;
 
 /* Functions */
 
-uint8_t Stepper_Init(Stepper_Handle_t *stp) {
+Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs) {
+    Stepper_Handle_t *stp = &_stepper_pool[_n_steppers++];
+    stp->gpios = gpios;
+    stp->config = configs;
     stp->config_idx = 0;
-    return SET;
+    return stp;
 }
 
 /**
@@ -83,13 +106,16 @@ uint8_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold) {
     return Stepper_Halt(stp, hold);
 }
 
-uint8_t TIM_UEV_Callback(TIM_TypeDef *tim) {
-    if (_stp->steps_left-- > 0) {
-        Stepper_Step(_stp, _stp->direc);
+/* Callbacks */
+
+uint8_t TIM_UEV_Callback(System_Context_t *ctx) {
+    Stepper_Handle_t *handle = ctx->stepper_handle;
+    if (handle->steps_left-- > 0) {
+        Stepper_Step(handle, handle->direc);
+        return SET;
     } else {
-        Stepper_Halt(_stp, RESET);
-        tim->CR1 &= ~(TIM_CR1_CEN);
+        Stepper_Halt(handle, RESET);
+        return RESET;
     }
-    return SET;
 }
 

@@ -1,11 +1,11 @@
 #include "main.h"
 #include "utils/service.h"
-#include "interrupts.h"
+#include "driver/interrupts.h"
 #include "driver/uart.h"
 #include "driver/stepper.h"
 
-UART_Handle_t hnd;
-Stepper_Handle_t stp;
+UART_Handle_t *hnd = NULL;
+Stepper_Handle_t *stp = NULL;
 
 const uint8_t wave[4] = {
     0b1000,
@@ -23,22 +23,21 @@ int main(void) {
     UART_Config();
     TIM3_Config();
 
-    hnd.instance = USART1;
+    hnd = UART_Init(USART1);
+    stp = Stepper_Init(gpios, wave);
 
-    stp.config = wave;
-    stp.gpios = gpios;
-    UART_Recieve(&hnd, buffer, 3);
-    Stepper_Init(&stp);
-    //Stepper_Rotate_IT(&stp, 200, CLOCKWISE, 10);
-    //Stepper_Halt(&stp, RESET);
-    UART_Transmit(&hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
+    ctx.stepper_handle = stp;
+    ctx.uart_handle = hnd;
+
+    UART_Recieve(hnd, buffer, 3);
+    UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
 
     while (1) {
-        if (hnd.command_ready) {
-            if (ProcessCommand(&stp, buffer, &hnd) != SET) {
-                UART_Transmit(&hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
+        if (UART_GetCmdRdy(hnd)) {
+            if (ProcessCommand(stp, buffer, hnd) != SET) {
+                UART_Transmit(hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
             } else {
-                UART_Transmit(&hnd, (uint8_t*)"ack\n", strlen("ack\n"), MAX_TIMEOUT);
+                UART_Transmit(hnd, (uint8_t*)"ack\n", strlen("ack\n"), MAX_TIMEOUT);
             }
         }
     }
@@ -48,7 +47,7 @@ int main(void) {
  * \todo Add error handling.
  */
 uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd, UART_Handle_t *handle) {
-    handle->command_ready = RESET;
+    UART_SetCmdRdy(handle, RESET);
     UART_Recieve(handle, buffer, 3);
     int steps = atoi((char*)(cmd + 1)) * 50;
     int speed = atoi((char*)(cmd + 2)) * 10;

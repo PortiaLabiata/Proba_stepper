@@ -1,14 +1,31 @@
 #pragma once
-#include "main.h"
+#include "core/system.h"
+#include "core/types.h"
+
+/* Defines */
+
+#define MAX_UARTS 2
 
 /* Typedefs */
 
+typedef struct UART_Handle UART_Handle_t;
 
+/* Configuration */
+
+UART_Handle_t *UART_Init(USART_TypeDef *inst);
 
 /* IO */
 
 uint8_t UART_Transmit(UART_Handle_t *handle, uint8_t *pData, uint32_t size, int timeout);
 uint8_t UART_Recieve(UART_Handle_t *handle, uint8_t *pData, uint32_t size);
 
-uint8_t UART_RecieveCallback(USART_TypeDef *usart);
+/* Getters/setters */
+
+uint8_t UART_GetCmdRdy(UART_Handle_t *handle);
+uint8_t UART_GetRxLeft(UART_Handle_t *handle);
+
+void UART_SetCmdRdy(UART_Handle_t *handle, uint8_t status);
+void UART_SetRxLeft(UART_Handle_t *handle, uint8_t value);
+
+uint8_t UART_RecieveCallback(System_Context_t *ctx);
 

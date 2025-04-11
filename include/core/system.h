@@ -1,5 +1,6 @@
 #pragma once
-#include "main.h"
+#include <stm32f103x6.h>
+#include "core/types.h"
 
 /* Magic numbers */
 
@@ -10,8 +11,9 @@
 
 #define HSI_FREQ         8000000 // Hz
 #define HSE_FREQ         16000000 // I don't have it, may vary
-/* Since frequency is not intended to change during runtime, this approach is better,
-since it calculates the f-s only once on startup. */
+
+#define UART_BAUD_RATE   115200 
+
 #define SYSCLK_FREQ      _sysclk_freq
 #define AHB_FREQ         _ahb_freq
 #define PCLK2_FREQ       _pclk2_freq
