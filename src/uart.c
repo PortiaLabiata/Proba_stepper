@@ -2,18 +2,18 @@
 
 /* IO */
 
-uint8_t UART_Transmit(uint8_t *pData, uint32_t size, int timeout) {
+uint8_t UART_Transmit(UART_Handle_t *handle, uint8_t *pData, uint32_t size, int timeout) {
     uint32_t ms_start = Get_CurrentTick();
 
     for (uint8_t *data = pData; data - pData < size; data++) {
-        while (!(USART1->SR & USART_SR_TXE_Msk)) {
+        while (!(handle->instance->SR & USART_SR_TXE_Msk)) {
             if (timeout != MAX_TIMEOUT && Get_CurrentTick() - ms_start > timeout) {
                 return RESET;
             }
         } // Wait until TXE bit is set.
-        USART1->DR = *data; // Transmit
+        handle->instance->DR = *data; // Transmit
     }
-    while (!(USART1->SR & USART_SR_TC_Msk)) {} // Wait until TC flag is set
+    while (!(handle->instance->SR & USART_SR_TC_Msk)) {} // Wait until TC flag is set
     return SET;
 }
 
@@ -25,12 +25,12 @@ uint8_t UART_Recieve(UART_Handle_t *handle, uint8_t *pData, uint32_t size) {
 
 /* ISRs */
 
-void USART1_IRQHandler(void) {
-    if (USART1->SR & USART_SR_RXNE_Msk) { // Character recieved
+void UART_RecieveCallback(UART_Handle_t *handle) {
+    if (handle->instance->SR & USART_SR_RXNE_Msk) { // Character recieved
         if (hnd.rx_left == 1) {
             hnd.command_ready = SET;
         }
-        *hnd.cursor = USART1->DR; // Read data and clear RXNE bit
+        *hnd.cursor = handle->instance->DR; // Read data and clear RXNE bit
         hnd.cursor++;
         hnd.rx_left--;
     }

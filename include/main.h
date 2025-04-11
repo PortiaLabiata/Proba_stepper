@@ -18,6 +18,7 @@
 /* Typedefs */
 
 typedef struct {
+    USART_TypeDef *instance;
     volatile uint8_t *cursor;
     volatile uint8_t error_code;
     volatile uint8_t command_ready;

@@ -24,17 +24,21 @@ int main(void) {
     UART_Config();
     TIM3_Config();
 
+    hnd.instance = USART1;
+
     stp.config = wave;
     stp.gpios = gpios;
-    UART_Recieve(&hnd, buffer, 2);
+    UART_Recieve(&hnd, buffer, 3);
     Stepper_Init(&stp);
     //Stepper_Rotate_IT(&stp, 200, CLOCKWISE, 10);
     //Stepper_Halt(&stp, RESET);
+    Stepper_Rotate(&stp, 50, CLOCKWISE, 10);
+    Stepper_Halt(&stp, RESET);
 
     while (1) {
         if (hnd.command_ready) {
             if (ProcessCommand(&stp, buffer, &hnd) != SET) {
-                UART_Transmit((uint8_t*)"er", strlen("er"), MAX_TIMEOUT);
+                UART_Transmit(&hnd, (uint8_t*)"er", strlen("er"), MAX_TIMEOUT);
             }
         }
     }
@@ -45,15 +49,18 @@ int main(void) {
  */
 uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd, UART_Handle_t *handle) {
     handle->command_ready = RESET;
-    UART_Recieve(handle, buffer, 2);
-    uint32_t steps = atoi((char*)(cmd + 1)) * 50;
+    UART_Recieve(handle, buffer, 3);
+    int steps = atoi((char*)(cmd + 1)) * 50;
+    int speed = atoi((char*)(cmd + 2)) * 10;
     switch (cmd[0]) {
         case 'f':
-            Stepper_Rotate_IT(stp, steps, CLOCKWISE, 10);
+            Stepper_Rotate_IT(stp, steps, CLOCKWISE, speed);
             return SET;
         case 'r':
-            Stepper_Rotate_IT(stp, steps, COUNTERCLOCKWISE, 10);
+            Stepper_Rotate_IT(stp, steps, COUNTERCLOCKWISE, speed);
             return SET;
+        case 'h':
+            Stepper_Halt(stp, RESET);
         default:
             return RESET;
     }

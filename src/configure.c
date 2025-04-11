@@ -21,7 +21,7 @@ void ClockConfig(void) {
     _ahb_freq = Get_AHB_Freq();
     _pclk2_freq = Get_PCLK2_Freq();
     _pclk1_freq = Get_PCLK1_Freq();
-    FLASH->ACR |= FLASH_ACR_LATENCY_2; // Enable flash latency
+    //FLASH->ACR |= FLASH_ACR_LATENCY_2; // Enable flash latency
 
     NVIC_SetPriorityGrouping(4);
     SysTick_Config(AHB_FREQ / 1000); // Set SysTick to fire each ms
