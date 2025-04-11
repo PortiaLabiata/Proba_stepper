@@ -20,10 +20,6 @@ struct Stepper_Handle {
 static Stepper_Handle_t _stepper_pool[MAX_STEPPERS];
 static uint8_t _n_steppers;
 
-/* Global definitions */
-
-static Stepper_Handle_t *_stp;
-
 /* Functions */
 
 Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs) {
@@ -39,7 +35,7 @@ Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs) {
  * \param[in] stp Stepper handle.
  * \param[in] dir Direction, can be either CLOCKWISE or COUNTERCLOCKWISE.
  */
-uint8_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir) {
+Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir) {
     uint8_t curr_config = stp->config[stp->config_idx];
     GPIOB->ODR &= ~(stp->gpios[0] | stp->gpios[1] | stp->gpios[2] | stp->gpios[3]);
 
@@ -53,17 +49,17 @@ uint8_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir) {
     } else if (dir == COUNTERCLOCKWISE) {
         stp->config_idx = (stp->config_idx - 1 + N_PINS) % N_PINS;
     } else {
-        return RESET; // In case something went horribly wrong.
+        return STEPPER_ERROR_SOFT; // In case something went horribly wrong.
     }
-    return SET;
+    return STEPPER_OK;
 }
 
-uint8_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold) {
+Stepper_Status_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold) {
     if (!hold) {
         GPIOB->ODR &= ~(stp->gpios[0] | stp->gpios[1] | stp->gpios[2] | stp->gpios[3]);
-        return SET;
+        return STEPPER_OK;
     } else {
-        return SET;
+        return STEPPER_OK;
     }
 }
 
@@ -78,19 +74,18 @@ uint8_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold) {
  * \param[in] del Delay between steps.
  * \todo Add error handling.
  */
-uint8_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del) {
+Stepper_Status_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del) {
     for (int i = 0; i < steps; i++) {
         Stepper_Step(stp, dir);
         delay(del);
     }
 
-    return SET;
+    return STEPPER_OK;
 }
 
-uint8_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del) {
+Stepper_Status_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del) {
     stp->steps_left = steps;
     stp->direc = dir;
-    _stp = stp;
     uint32_t cycles = PCLK1_FREQ * del / 1000;
     uint32_t psc = cycles / 65535 + 1;
 
@@ -98,10 +93,10 @@ uint8_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, ui
     TIM3->ARR = cycles / psc - 1;
     TIM3->EGR |= TIM_EGR_UG;
     TIM3->CR1 |= TIM_CR1_CEN;
-    return SET;
+    return STEPPER_OK;
 }
 
-uint8_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold) {
+Stepper_Status_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold) {
     stp->steps_left = 0;
     return Stepper_Halt(stp, hold);
 }

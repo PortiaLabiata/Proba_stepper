@@ -18,6 +18,16 @@ typedef struct {
     Stepper_Handle_t *stepper_handle;
 } System_Context_t;
 
+typedef enum {
+    STEPPER_OK,
+    STEPPER_ERROR_SOFT
+} Stepper_Status_t;
+
+typedef enum {
+    UART_OK,
+    UART_ERROR_SOFT
+} UART_Status_t;
+
 /* System context */
 
 extern System_Context_t ctx;

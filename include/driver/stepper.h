@@ -15,12 +15,12 @@ typedef struct Stepper_Handle Stepper_Handle_t;
 /* Functions */
 
 Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs);
-uint8_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir);
+Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir);
 
-uint8_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold);
-uint8_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
-uint8_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
-uint8_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold);
+Stepper_Status_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold);
+Stepper_Status_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
+Stepper_Status_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
+Stepper_Status_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold);
 
 /* ISRs */
 

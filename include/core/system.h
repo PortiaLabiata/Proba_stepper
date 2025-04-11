@@ -21,7 +21,7 @@
 
 /* Global definitions */
 
-extern uint32_t _current_ticks;
+extern volatile uint32_t _current_ticks;
 
 extern uint32_t _sysclk_freq;
 extern uint32_t _ahb_freq;

@@ -2,7 +2,7 @@
 
 /* SysTick configuration */
 
-uint32_t _current_ticks; // Current SysTick ticks, counted from startup.
+volatile uint32_t _current_ticks; // Current SysTick ticks, counted from startup.
 
 /* Clock constants, will be calculated later */
 
