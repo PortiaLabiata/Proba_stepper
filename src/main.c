@@ -1,9 +1,8 @@
 #include "main.h"
-#include "configure.h"
-#include "service.h"
+#include "utils/service.h"
 #include "interrupts.h"
-#include "uart.h"
-#include "stepper.h"
+#include "driver/uart.h"
+#include "driver/stepper.h"
 
 UART_Handle_t hnd;
 Stepper_Handle_t stp;
@@ -38,6 +37,8 @@ int main(void) {
         if (hnd.command_ready) {
             if (ProcessCommand(&stp, buffer, &hnd) != SET) {
                 UART_Transmit(&hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
+            } else {
+                UART_Transmit(&hnd, (uint8_t*)"ack\n", strlen("ack\n"), MAX_TIMEOUT);
             }
         }
     }

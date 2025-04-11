@@ -1,13 +1,15 @@
 //#include <stdlib.h>
 
 #include "main.h"
-#include "service.h"
 
 /* Constants */
 
 #define CLOCKWISE (uint8_t)0
 #define COUNTERCLOCKWISE (uint8_t)1
 #define N_PINS (uint8_t)4
+
+/* Typedefs */
+
 
 /* Functions */
 

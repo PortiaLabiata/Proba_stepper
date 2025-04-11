@@ -1,4 +1,4 @@
-#include "uart.h"
+#include "driver/uart.h"
 
 /* IO */
 
@@ -23,15 +23,16 @@ uint8_t UART_Recieve(UART_Handle_t *handle, uint8_t *pData, uint32_t size) {
     return SET;
 }
 
-/* ISRs */
+/* Callbacks */
 
-void UART_RecieveCallback(UART_Handle_t *handle) {
-    if (handle->instance->SR & USART_SR_RXNE_Msk) { // Character recieved
+uint8_t UART_RecieveCallback(USART_TypeDef *usart) {
+    if (usart->SR & USART_SR_RXNE_Msk) { // Character recieved
         if (hnd.rx_left == 1) {
             hnd.command_ready = SET;
         }
-        *hnd.cursor = handle->instance->DR; // Read data and clear RXNE bit
+        *hnd.cursor = usart->DR; // Read data and clear RXNE bit
         hnd.cursor++;
         hnd.rx_left--;
     }
+   return SET;
 }

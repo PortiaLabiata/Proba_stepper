@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stm32f103x6.h>
 
+#include "core/system.h"
+
 /* Global flag options */
 
 #define SET (uint8_t)1
@@ -15,16 +17,6 @@
 #define MAX_TIMEOUT -1
 #define STEPPER_DIVIDER 960
 
-/* Typedefs */
-
-typedef struct {
-    USART_TypeDef *instance;
-    volatile uint8_t *cursor;
-    volatile uint8_t error_code;
-    volatile uint8_t command_ready;
-    volatile uint32_t rx_left;
-} UART_Handle_t; // Since I don't really need encapsulation, it's fine.
-
 /**
  * \struct
  * \brief Stepper structure. GPIOS should be in form of GPIO_ODR_ODRx_Msk.
@@ -36,6 +28,14 @@ typedef struct {
     uint8_t direc;
     uint32_t steps_left;
 } Stepper_Handle_t;
+
+typedef struct {
+    USART_TypeDef *instance;
+    volatile uint8_t *cursor;
+    volatile uint8_t error_code;
+    volatile uint8_t command_ready;
+    volatile uint32_t rx_left;
+} UART_Handle_t; // Since I don't really need encapsulation, it's fine.
 
 /* Global definitions */
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "main.h"
-#include "service.h"
 
 /* Magic numbers */
 
@@ -20,14 +19,29 @@ since it calculates the f-s only once on startup. */
 
 /* Global definitions */
 
+extern uint32_t _current_ticks;
+
 extern uint32_t _sysclk_freq;
 extern uint32_t _ahb_freq;
 extern uint32_t _pclk2_freq;
 extern uint32_t _pclk1_freq;
 
-/* General configuration */
+/* System information functions */
+
+uint32_t Get_SYSCLK_Freq(void);
+uint32_t Get_AHB_Freq(void);
+uint32_t Get_PCLK2_Freq(void);
+uint32_t Get_PCLK1_Freq(void);
+uint32_t Get_CurrentTick(void);
+uint32_t Get_CurrentTick(void);
+
+/* Configuration functions */
 
 void ClockConfig(void);
 void GPIO_Config(void);
 void UART_Config(void);
 void TIM3_Config(void);
+
+/* System functions */
+
+void delay(uint32_t ms);

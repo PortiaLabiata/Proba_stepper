@@ -1,4 +1,4 @@
-#include "stepper.h"
+#include "driver/stepper.h"
 
 /* Global definitions */
 
@@ -83,16 +83,13 @@ uint8_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold) {
     return Stepper_Halt(stp, hold);
 }
 
-/* Commands handling */
-
-/* ISRs */
-
-void TIM3_IRQHandler(void) {
-    TIM3->SR &= ~(TIM_SR_UIF); // Reset the timer status
+uint8_t TIM_UEV_Callback(TIM_TypeDef *tim) {
     if (_stp->steps_left-- > 0) {
         Stepper_Step(_stp, _stp->direc);
     } else {
         Stepper_Halt(_stp, RESET);
-        TIM3->CR1 &= ~(TIM_CR1_CEN);
+        tim->CR1 &= ~(TIM_CR1_CEN);
     }
+    return SET;
 }
+
