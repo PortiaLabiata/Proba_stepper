@@ -32,13 +32,12 @@ int main(void) {
     Stepper_Init(&stp);
     //Stepper_Rotate_IT(&stp, 200, CLOCKWISE, 10);
     //Stepper_Halt(&stp, RESET);
-    Stepper_Rotate(&stp, 50, CLOCKWISE, 10);
-    Stepper_Halt(&stp, RESET);
+    UART_Transmit(&hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
 
     while (1) {
         if (hnd.command_ready) {
             if (ProcessCommand(&stp, buffer, &hnd) != SET) {
-                UART_Transmit(&hnd, (uint8_t*)"er", strlen("er"), MAX_TIMEOUT);
+                UART_Transmit(&hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
             }
         }
     }
@@ -60,7 +59,8 @@ uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd, UART_Handle_t *handl
             Stepper_Rotate_IT(stp, steps, COUNTERCLOCKWISE, speed);
             return SET;
         case 'h':
-            Stepper_Halt(stp, RESET);
+            Stepper_Halt_IT(stp, RESET);
+            return SET;
         default:
             return RESET;
     }
