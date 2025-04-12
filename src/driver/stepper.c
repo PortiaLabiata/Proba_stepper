@@ -12,7 +12,7 @@ struct Stepper_Handle {
     TIM_TypeDef *instance;
     volatile uint8_t config_idx;
     uint8_t direc;
-    uint32_t steps_left;
+    volatile uint32_t steps_left;
 };
 
 /* Handle pool */
@@ -23,10 +23,14 @@ static uint8_t _n_steppers;
 /* Functions */
 
 Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs) {
+    if (_n_steppers >= MAX_STEPPERS) return NULL;
+    
     Stepper_Handle_t *stp = &_stepper_pool[_n_steppers++];
     stp->gpios = gpios;
     stp->config = configs;
     stp->config_idx = 0;
+
+    GPIOB->ODR &= ~(gpios[0] | gpios[1] | gpios[2] | gpios[3]);
     return stp;
 }
 
@@ -105,8 +109,9 @@ Stepper_Status_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold) {
 
 uint8_t TIM_UEV_Callback(System_Context_t *ctx) {
     Stepper_Handle_t *handle = ctx->stepper_handle;
-    if (handle->steps_left-- > 0) {
+    if (handle->steps_left > 0) {
         Stepper_Step(handle, handle->direc);
+        handle->steps_left--;
         return SET;
     } else {
         Stepper_Halt(handle, RESET);

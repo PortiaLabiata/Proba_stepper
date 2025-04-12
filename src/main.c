@@ -23,8 +23,12 @@ int main(void) {
     UART_Config();
     TIM3_Config();
 
-    hnd = UART_Init(USART1);
-    stp = Stepper_Init(gpios, wave);
+    if ((hnd = UART_Init(USART1)) == NULL) {
+        ; // For fault handler
+    }
+    if ((stp = Stepper_Init(gpios, wave)) == NULL) {
+        ; // For fault handler
+    }
 
     ctx.stepper_handle = stp;
     ctx.uart_handle = hnd;
@@ -47,8 +51,8 @@ int main(void) {
  * \todo Add error handling.
  */
 uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd, UART_Handle_t *handle) {
-    UART_SetCmdRdy(handle, RESET);
     UART_Recieve(handle, buffer, 3);
+    UART_SetCmdRdy(handle, RESET);
     int steps = atoi((char*)(cmd + 1)) * 50;
     int speed = atoi((char*)(cmd + 2)) * 10;
     switch (cmd[0]) {

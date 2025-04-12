@@ -19,6 +19,10 @@
 #define PCLK2_FREQ       _pclk2_freq
 #define PCLK1_FREQ       _pclk1_freq
 
+#ifndef NULL
+    #define NULL ((void *)0)
+#endif
+
 /* Global definitions */
 
 extern volatile uint32_t _current_ticks;

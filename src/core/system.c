@@ -101,8 +101,11 @@ void ClockConfig(void) {
     // Setting PLL source is unnecessary, since reset value is 0 and
     // it corresponds to HSI/2. f=48MHz
     // Settings: PLL as SYSCLK clock source, PLLMUL=12, ADC PSC=4.
+    RCC->CR |= RCC_CR_PLLON; // Starting PLL
+    while (!(RCC->CR & RCC_CR_PLLRDY)) 
+        __NOP();
+
     RCC->CFGR |= RCC_CFGR_ADCPRE_DIV4 | RCC_CFGR_SW_PLL | RCC_CFGR_PLLMULL12;
-    RCC->CR |= RCC_CR_PLLON_Msk; // Starting PLL
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL) 
         __NOP();
     _sysclk_freq = Get_SYSCLK_Freq();
@@ -148,8 +151,6 @@ void UART_Config(void) {
              USART_CR1_UE); // Enable UART, reciever and transmitter
     // No need to set M bit, word length=8 bit.
     USART1->CR2 |= (0b00 << USART_CR2_STOP_Pos); // 1 STOP bit, redundant.
-
-    USART1->CR1 |= USART_CR1_RXNEIE; // Enable RXNE interrupt
 
     NVIC_SetPriority(USART1_IRQn, 0);
     NVIC_EnableIRQ(USART1_IRQn);

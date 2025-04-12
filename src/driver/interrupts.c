@@ -5,7 +5,9 @@ void SysTick_Handler(void) {
 }
 
 void USART1_IRQHandler(void) {
-    UART_RecieveCallback(&ctx);
+    if (USART1->SR & USART_SR_RXNE_Msk) {
+        UART_RecieveCallback(&ctx);
+    }
 }
 
 void TIM3_IRQHandler(void) {

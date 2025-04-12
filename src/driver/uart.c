@@ -18,10 +18,14 @@ static uint8_t _n_uarts = 0;
 /* Configuration */
 
 UART_Handle_t *UART_Init(USART_TypeDef *inst) {
+    if (_n_uarts >= MAX_UARTS) return NULL;
+
     UART_Handle_t *handle = &_uart_pools[_n_uarts++];
     handle->rx_left = 0;
     handle->command_ready = RESET;
     handle->instance = inst;
+
+    USART1->CR1 |= USART_CR1_RXNEIE; // Enable RXNE interrupt
     return handle;
 }
 
@@ -70,13 +74,13 @@ void UART_SetRxLeft(UART_Handle_t *handle, uint8_t value) {
 
 uint8_t UART_RecieveCallback(System_Context_t *ctx) {
     UART_Handle_t *handle = ctx->uart_handle;
-    if (handle->instance->SR & USART_SR_RXNE_Msk) { // Character recieved
-        if (handle->rx_left == 1) {
-            handle->command_ready = SET;
-        }
-        *handle->cursor = handle->instance->DR;
-        handle->cursor++;
-        handle->rx_left--;
+     // Character recieved
+    *handle->cursor = handle->instance->DR;
+    handle->cursor++;
+    handle->rx_left--;
+
+    if (handle->rx_left == 0) {
+        handle->command_ready = SET;
     }
    return SET;
 }
