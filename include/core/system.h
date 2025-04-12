@@ -34,11 +34,6 @@ extern uint32_t _pclk1_freq;
 
 /* System information functions */
 
-uint32_t Get_SYSCLK_Freq(void);
-uint32_t Get_AHB_Freq(void);
-uint32_t Get_PCLK2_Freq(void);
-uint32_t Get_PCLK1_Freq(void);
-uint32_t Get_CurrentTick(void);
 uint32_t Get_CurrentTick(void);
 
 /* Configuration functions */

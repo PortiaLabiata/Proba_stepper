@@ -13,6 +13,10 @@ typedef struct Stepper_Handle Stepper_Handle_t;
 
 /* Global typedefs */
 
+/**
+ * \struct
+ * \brief Global context structure, there is meant to be only one object.
+ */
 typedef struct {
     UART_Handle_t *uart_handle;
     Stepper_Handle_t *stepper_handle;

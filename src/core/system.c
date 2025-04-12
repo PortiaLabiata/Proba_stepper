@@ -13,7 +13,12 @@ uint32_t _pclk1_freq = 0;
 
 /* System information functions */
 
-uint32_t Get_SYSCLK_Freq(void) {
+/**
+ * \brief Calculates SYSCLK frequency based on RCC registers content. Is supposed to 
+ * only run once at the start of the program.
+ * \returns Frequency in hertz.
+ */
+static uint32_t Get_SYSCLK_Freq(void) {
     uint32_t pmul;
     switch (RCC->CFGR & (3UL << RCC_CFGR_SWS_Pos)) {
         case RCC_CFGR_SWS_HSI:
@@ -28,7 +33,12 @@ uint32_t Get_SYSCLK_Freq(void) {
     }
 }
 
-uint32_t Get_AHB_Freq(void) {
+/**
+ * \brief Calculates AHB frequency based on RCC registers content. Is supposed to 
+ * only run once at the start of the program.
+ * \returns Frequency in hertz.
+ */
+static uint32_t Get_AHB_Freq(void) {
     switch (RCC->CFGR & (0b1111 << RCC_CFGR_HPRE_Pos)) {
         case RCC_CFGR_HPRE_DIV1:
             return SYSCLK_FREQ / 1;
@@ -53,7 +63,12 @@ uint32_t Get_AHB_Freq(void) {
     }
 }
 
-uint32_t Get_PCLK2_Freq(void) {
+/**
+ * \brief Calculates PCLK2 frequency based on RCC registers content. Is supposed to 
+ * only run once at the start of the program.
+ * \returns Frequency in hertz.
+ */
+static uint32_t Get_PCLK2_Freq(void) {
     switch (RCC->CFGR & (0b111 << RCC_CFGR_PPRE2_Pos)) {
         case RCC_CFGR_PPRE2_DIV1:
             return AHB_FREQ / 1;
@@ -70,7 +85,12 @@ uint32_t Get_PCLK2_Freq(void) {
     }
 }
 
-uint32_t Get_PCLK1_Freq(void) {
+/**
+ * \brief Calculates PCLK1 frequency based on RCC registers content. Is supposed to 
+ * only run once at the start of the program.
+ * \returns Frequency in hertz.
+ */
+static uint32_t Get_PCLK1_Freq(void) {
     switch (RCC->CFGR & (0b111 << RCC_CFGR_PPRE1_Pos)) {
         case RCC_CFGR_PPRE1_DIV1:
             return AHB_FREQ / 1;
@@ -87,12 +107,20 @@ uint32_t Get_PCLK1_Freq(void) {
     }
 }
 
+
+/**
+ * \brief Gets current SysTick tick from the global variable.
+ * \returns Current tick.
+ */
 uint32_t Get_CurrentTick(void) {
     return _current_ticks;
 }
 
 /* Configuration functions */
 
+/**
+ * \brief Low-level configuration of RCC.
+ */
 void ClockConfig(void) {
     RCC->CR |= RCC_CR_HSION_Msk; // Starting HSI
     while (!(RCC->CR & RCC_CR_HSIRDY_Msk)) 
@@ -119,6 +147,9 @@ void ClockConfig(void) {
     NVIC_EnableIRQ(SysTick_IRQn); // Enable SysTick IRQ
 }
 
+/**
+ * \brief Low-level configuration of GPIO, excluding those that UART uses.
+ */
 void GPIO_Config(void) {
     RCC->APB2ENR |= RCC_APB2ENR_IOPCEN_Msk; // Enable GPIOC clocking
     GPIOC->CRH |= (GPIO_MODE_OUTPUT << GPIO_CRH_MODE13_Pos); // Set mode to 2MHz
@@ -132,6 +163,9 @@ void GPIO_Config(void) {
     GPIOB->CRH &= ~(GPIO_CRH_CNF8_Msk | GPIO_CRH_CNF9_Msk);
 }
 
+/**
+ * \brief Low-level configuration of UART, including GPIO.
+ */
 void UART_Config(void) {
     /* GPIO config */
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN;
@@ -156,6 +190,9 @@ void UART_Config(void) {
     NVIC_EnableIRQ(USART1_IRQn);
 }
 
+/**
+ * \brief Low-level configuration of TIM3 for usage in non-blocking stepper procedures.
+ */
 void TIM3_Config(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; // Enable clocking
     TIM3->DIER |= TIM_DIER_UIE; // Enable update event interrupt
@@ -166,6 +203,10 @@ void TIM3_Config(void) {
 
 /* System functions */
 
+/**
+ * \brief Busy-waiting loop for delays, based on SysTick ticks.
+ * \param[in] ms Delay duration in ms.
+ */
 void delay(uint32_t ms) {
     uint32_t tick_start = Get_CurrentTick();
     while (Get_CurrentTick() - tick_start < ms) {

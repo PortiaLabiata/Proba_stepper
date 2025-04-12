@@ -22,6 +22,12 @@ static uint8_t _n_steppers;
 
 /* Functions */
 
+/**
+ * \brief Initializes stepper object from the global pool.
+ * \param[in] gpios Array of GPIO pins used for stepper.
+ * \param[in] configs Array of sequential configurations of stepper GPIO pins.
+ * \returns Pointer to a stepper object. Unsafe, btw.
+ */
 Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs) {
     if (_n_steppers >= MAX_STEPPERS) return NULL;
     
@@ -38,6 +44,7 @@ Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs) {
  * \brief Preforms a single step.
  * \param[in] stp Stepper handle.
  * \param[in] dir Direction, can be either CLOCKWISE or COUNTERCLOCKWISE.
+ * \returns Operation status.
  */
 Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir) {
     uint8_t curr_config = stp->config[stp->config_idx];
@@ -58,6 +65,13 @@ Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir) {
     return STEPPER_OK;
 }
 
+/**
+ * \brief Halts a stepper motor and either leaves it energized 
+ * (huge current consumption!) or not.
+ * \param[in] stp Stepper handle.
+ * \param[in] hold Leave the coils energized or not, either SET or RESET.
+ * \returns Operation status.
+ */
 Stepper_Status_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold) {
     if (!hold) {
         GPIOB->ODR &= ~(stp->gpios[0] | stp->gpios[1] | stp->gpios[2] | stp->gpios[3]);
@@ -76,6 +90,7 @@ Stepper_Status_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold) {
  * \param[in] steps Number of steps performed.
  * \param[in] dir Direction, can be either CLOCKWISE or COUNTERCLOCKWISE.
  * \param[in] del Delay between steps.
+ * \returns Operation status.
  * \todo Add error handling.
  */
 Stepper_Status_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del) {
@@ -87,6 +102,17 @@ Stepper_Status_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t d
     return STEPPER_OK;
 }
 
+/**
+ * \brief Performs a non-blocking stepper revolution. Currently only full step mode supported.
+ * Minimum delay is 10 ms, technically there is no maximum delay, but at 100 ms the
+ * current cunsomption increases to 300 mA, so I would say a max of 50-70 ms is recommended.
+ * \param[in] stp Stepper handle.
+ * \param[in] steps Number of steps performed.
+ * \param[in] dir Direction, can be either CLOCKWISE or COUNTERCLOCKWISE.
+ * \param[in] del Delay between steps.
+ * \returns Operation status.
+ * \todo Add error handling.
+ */
 Stepper_Status_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del) {
     stp->steps_left = steps;
     stp->direc = dir;
@@ -100,6 +126,12 @@ Stepper_Status_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_
     return STEPPER_OK;
 }
 
+/**
+ * \brief Halts stepper in non-blocking mode analogous to blocking case.
+ * \param[in] stp Stepper handle.
+ * \param[out] hold Leave the coild energized or not, either SET or RESET.
+ * \returns Operation status.
+ */
 Stepper_Status_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold) {
     stp->steps_left = 0;
     return Stepper_Halt(stp, hold);
@@ -107,6 +139,12 @@ Stepper_Status_t Stepper_Halt_IT(Stepper_Handle_t *stp, uint8_t hold) {
 
 /* Callbacks */
 
+/**
+ * \brief Callback for timer UEV, steps the stepper from the system context.
+ * \param[in] ctx System context.
+ * \returns Operation status, either SET or RESET. The IRS will decide if it's time to
+ * stop the timer by the return value, so low-level and driver-level modules are separated.
+ */
 uint8_t TIM_UEV_Callback(System_Context_t *ctx) {
     Stepper_Handle_t *handle = ctx->stepper_handle;
     if (handle->steps_left > 0) {

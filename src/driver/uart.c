@@ -17,6 +17,11 @@ static uint8_t _n_uarts = 0;
 
 /* Configuration */
 
+/**
+ * \brief Initializes UART handle object from the global pool.
+ * \param[in] inst UART_TypeDef instance.
+ * \returns Pointer to the initialized object.
+ */
 UART_Handle_t *UART_Init(USART_TypeDef *inst) {
     if (_n_uarts >= MAX_UARTS) return NULL;
 
@@ -31,6 +36,14 @@ UART_Handle_t *UART_Init(USART_TypeDef *inst) {
 
 /* IO */
 
+/**
+ * \brief Transmits data through a UART. Blocking!
+ * \param[in] handle UART handle object.
+ * \param[in] pData Transferred data.
+ * \param[in] size Data size.
+ * \param[in] timeout Timeout in ticks, if equale to MAX_DELAY, will wait forever.
+ * \returns Operation status.
+ */
 UART_Status_t UART_Transmit(UART_Handle_t *handle, uint8_t *pData, uint32_t size, int timeout) {
     uint32_t ms_start = Get_CurrentTick();
 
@@ -46,6 +59,13 @@ UART_Status_t UART_Transmit(UART_Handle_t *handle, uint8_t *pData, uint32_t size
     return UART_OK;
 }
 
+/**
+ * \brief Starts writing the data into the buffer, non-blocking.
+ * \param[in] handle UART handle.
+ * \param[out] pData Buffer.
+ * \param[in] size Data size.
+ * \returns Operation status.
+ */
 UART_Status_t UART_Recieve(UART_Handle_t *handle, uint8_t *pData, uint32_t size) {
     handle->rx_left = size;
     handle->cursor = pData;
@@ -72,6 +92,11 @@ void UART_SetRxLeft(UART_Handle_t *handle, uint8_t value) {
 
 /* Callbacks */
 
+/**
+ * \brief UART RX callback.
+ * \param[in] ctx System context.
+ * \returns Operation status, either SET or RESET, likewise to TIM callback.
+ */
 uint8_t UART_RecieveCallback(System_Context_t *ctx) {
     UART_Handle_t *handle = ctx->uart_handle;
      // Character recieved
