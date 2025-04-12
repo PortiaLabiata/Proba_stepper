@@ -13,6 +13,8 @@ flowchart TD
         GPIO_Config()")]
         tim[("system.c
         TIM3_Config()")]
+        uart[("system.c
+        UART_Config()")]
   end
  subgraph DRIVERS["Drivers"]
         uart[("uart.c
