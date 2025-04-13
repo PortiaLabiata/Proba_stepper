@@ -3,6 +3,7 @@
 #include "driver/interrupts.h"
 #include "driver/uart.h"
 #include "driver/stepper.h"
+#include "driver/Driver_CAN.h"
 
 UART_Handle_t *hnd = NULL;
 Stepper_Handle_t *stp = NULL;
