@@ -168,16 +168,22 @@ void GPIO_Config(void) {
  * \brief Low-level configuration of UART, including GPIO.
  */
 void UART_Config(void) {
-    /* GPIO config */
-    RCC->APB2ENR |= RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN;
+    RCC->APB2ENR |= (RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
 
-    GPIOA->CRH &= ~(GPIO_CRH_MODE9_Msk | GPIO_CRH_CNF9_Msk | \
-                  GPIO_CRH_MODE10_Msk | GPIO_CRH_CNF10_Msk); // Reset bits
-    
-    GPIOA->CRH |= (0b10 << GPIO_CRH_CNF9_Pos) | // Set GPIOA9 to AF PP
-                (0b01 << GPIO_CRH_MODE9_Pos) |
-                (0b01 << GPIO_CRH_CNF10_Pos); // Set GPIOA10 to input floating
-    
+    // 1. Clear remap bit first (avoid glitches)
+    AFIO->MAPR &= ~AFIO_MAPR_USART1_REMAP;  
+    // 2. Enable remap: PB6=TX, PB7=RX
+    AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;    
+
+    // Configure PB6 (TX) as Alternate Function Push-Pull Output
+    GPIOB->CRL &= ~(GPIO_CRL_CNF6 | GPIO_CRL_MODE6);
+    GPIOB->CRL |= (GPIO_CRL_CNF6_1 | GPIO_CRL_MODE6_1);  // 50MHz output
+
+    // Configure PB7 (RX) as Input Floating (no pull-up/pull-down)
+    GPIOB->CRL &= ~(GPIO_CRL_CNF7 | GPIO_CRL_MODE7);
+    GPIOB->CRL |= GPIO_CRL_CNF7_1;  // Input floating
+
+
     /* USART config */
 
     USART1->BRR = PCLK2_FREQ / UART_BAUD_RATE;
@@ -185,7 +191,7 @@ void UART_Config(void) {
     USART1->CR1 |= (USART_CR1_TE | USART_CR1_RE | \
              USART_CR1_UE); // Enable UART, reciever and transmitter
     // No need to set M bit, word length=8 bit.
-    USART1->CR2 |= (0b00 << USART_CR2_STOP_Pos); // 1 STOP bit, redundant.
+    //USART1->CR2 |= (0b00 << USART_CR2_STOP_Pos); // 1 STOP bit, redundant.
 
     NVIC_SetPriority(USART1_IRQn, 0);
     NVIC_EnableIRQ(USART1_IRQn);
@@ -236,6 +242,11 @@ void TIM_Config_Static(void) {
     TIM1->CCR1 = TIM1->ARR / 4;
     TIM1->CCER |= TIM_CCER_CC1E; // Enable Channel 1
 
+    /* Channel 2 */
+    TIM1->CCMR1 |= (TIM_CCMR2_OC4M_0 | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2); // Set mode to PWM2
+    TIM1->CCR1 = TIM1->ARR / 4;
+    TIM1->CCER |= TIM_CCER_CC1E;
+
     /* Channel 4 */
     TIM1->CCMR2 |= (TIM_CCMR2_OC4M_0 | TIM_CCMR2_OC4M_1 | TIM_CCMR2_OC4M_2); // PWM2
     TIM1->CCR4 = 3*TIM1->ARR / 4;
@@ -243,6 +254,7 @@ void TIM_Config_Static(void) {
 
     TIM1->DIER |= TIM_DIER_UIE; // Enable UEV ISR
     TIM1->BDTR |= TIM_BDTR_MOE; // Enable the damn main outputs
+    TIM1->CR2 |= (TIM_CR2_MMS_0 | TIM_CR2_MMS_2); // Set master output to CC2
     TIM1->EGR |= TIM_EGR_UG; // Update timer
 
     NVIC_SetPriority(TIM1_UP_IRQn, 0);
@@ -270,8 +282,10 @@ void TIM_Config_Static(void) {
     TIM2->CR1 |= (TIM_CR1_CKD_0 | TIM_CR1_CKD_1);
     TIM2->ARR = 599;
     TIM2->PSC = 399;
-    //TIM2->SMCR &= ~TIM_SMCR_SMS_Msk; // Set TIM1 as master
-    TIM2->SMCR |= (TIM_SMCR_TS_0 | TIM_SMCR_TS_1 | TIM_SMCR_TS_2); // Set ETR as trigger source
+
+    TIM2->SMCR &= ~TIM_SMCR_SMS_Msk; // Set TIM1 as master
+    //TIM2->SMCR |= (TIM_SMCR_TS_0 | TIM_SMCR_TS_1 | TIM_SMCR_TS_2); // Set ETR as trigger source
+    // ITR0 set as trigger source
     TIM2->SMCR |= TIM_SMCR_ETP; // Invert ETR polarity
     TIM2->SMCR |= TIM_SMCR_SMS_2; // Set TIM2 in slave reset mode
 

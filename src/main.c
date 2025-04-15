@@ -20,10 +20,10 @@ volatile uint8_t buffer[10];
 int main(void) {
     ClockConfig();
     GPIO_Config();
-    //UART_Config();
+    UART_Config();
     TIM_Config_Static();
 
-    /* if ((hnd = UART_Init(USART1)) == NULL) {
+    if ((hnd = UART_Init(USART1)) == NULL) {
         ; // For fault handler
     }
     if ((stp = Stepper_Init(gpios, wave)) == NULL) {
@@ -31,9 +31,9 @@ int main(void) {
     }
 
     ctx.stepper_handle = stp;
-    ctx.uart_handle = hnd; */
+    ctx.uart_handle = hnd;
 
-    /* UART_Recieve(hnd, buffer, 3);
+    UART_Recieve(hnd, buffer, 3);
     UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
 
     while (1) {
@@ -44,10 +44,7 @@ int main(void) {
                 UART_Transmit(hnd, (uint8_t*)"ack\n", strlen("ack\n"), MAX_TIMEOUT);
             }
         }
-    } */
-    while (1) {
-        __NOP();
-    };
+    }
 
 }
 
