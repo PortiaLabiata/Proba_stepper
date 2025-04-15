@@ -8,7 +8,7 @@ flowchart TD
         gpio[("system.c
         GPIO_Config()")]
         tim[("system.c
-        TIM3_Config()")]
+        TIM2_Config()")]
         uart_conf[("system.c
         UART_Config()")]
   end
@@ -25,7 +25,7 @@ flowchart TD
  subgraph ISRs["Interrupts"]
         uart_isr[("USART1_IRQHandler
         (UART RX)")]
-        tim_isr[("TIM3_IRQHandler
+        tim_isr[("TIM2_IRQHandler
         (Stepper Timing)")]
   end
     main[("main.c

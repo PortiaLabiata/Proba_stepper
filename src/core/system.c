@@ -197,11 +197,11 @@ void UART_Config(void) {
  * will fire approx. every 10 ms, which is not optimal.
  */
 void TIM_Config_Dynamic(void) {
-    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; // Enable clocking
-    TIM3->DIER |= TIM_DIER_UIE; // Enable update event interrupt
-    TIM3->CR1 &= ~(TIM_CR1_CKD_Msk);
-    NVIC_SetPriority(TIM3_IRQn, 0);
-    NVIC_EnableIRQ(TIM3_IRQn);
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable clocking
+    TIM2->DIER |= TIM_DIER_UIE; // Enable update event interrupt
+    TIM2->CR1 &= ~(TIM_CR1_CKD_Msk);
+    NVIC_SetPriority(TIM2_IRQn, 0);
+    NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 /**
@@ -263,10 +263,10 @@ void TIM_Config_Static(void) {
     TIM2->CR1 |= (TIM_CR1_CKD_0 | TIM_CR1_CKD_1);
     TIM2->ARR = 599;
     TIM2->PSC = 399;
-    //TIM3->SMCR &= ~TIM_SMCR_SMS_Msk; // Set TIM1 as master
+    //TIM2->SMCR &= ~TIM_SMCR_SMS_Msk; // Set TIM1 as master
     TIM2->SMCR |= (TIM_SMCR_TS_0 | TIM_SMCR_TS_1 | TIM_SMCR_TS_2); // Set ETR as trigger source
     TIM2->SMCR |= TIM_SMCR_ETP; // Invert ETR polarity
-    TIM2->SMCR |= TIM_SMCR_SMS_2; // Set TIM3 in slave reset mode
+    TIM2->SMCR |= TIM_SMCR_SMS_2; // Set TIM2 in slave reset mode
 
     /* Channel 2 */
     TIM2->CCMR1 |= (TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2); // Set mode to PWM1

@@ -119,10 +119,10 @@ Stepper_Status_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_
     uint32_t cycles = PCLK1_FREQ * del / 1000;
     uint32_t psc = cycles / 65535 + 1;
 
-    TIM3->PSC = psc;
-    TIM3->ARR = cycles / psc - 1;
-    TIM3->EGR |= TIM_EGR_UG;
-    TIM3->CR1 |= TIM_CR1_CEN;
+    TIM2->PSC = psc;
+    TIM2->ARR = cycles / psc - 1;
+    TIM2->EGR |= TIM_EGR_UG;
+    TIM2->CR1 |= TIM_CR1_CEN;
     return STEPPER_OK;
 }
 
