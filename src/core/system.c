@@ -129,13 +129,14 @@ void ClockConfig(void) {
     // Setting PLL source is unnecessary, since reset value is 0 and
     // it corresponds to HSI/2. f=48MHz
     // Settings: PLL as SYSCLK clock source, PLLMUL=12, ADC PSC=4.
+
+    RCC->CFGR |= RCC_CFGR_ADCPRE_DIV4 | RCC_CFGR_SW_PLL | RCC_CFGR_PLLMULL12;
     RCC->CR |= RCC_CR_PLLON; // Starting PLL
     while (!(RCC->CR & RCC_CR_PLLRDY)) 
         __NOP();
-
-    RCC->CFGR |= RCC_CFGR_ADCPRE_DIV4 | RCC_CFGR_SW_PLL | RCC_CFGR_PLLMULL12;
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL) 
         __NOP();
+
     _sysclk_freq = Get_SYSCLK_Freq();
     _ahb_freq = Get_AHB_Freq();
     _pclk2_freq = Get_PCLK2_Freq();
@@ -191,14 +192,92 @@ void UART_Config(void) {
 }
 
 /**
- * \brief Low-level configuration of TIM3 for usage in non-blocking stepper procedures.
+ * \brief Configures timers for dynamic update of GPIO output values in UEV ISR.
+ * This approach is perhaps the simplest and it only uses one timer, but timer UEV interrupt
+ * will fire approx. every 10 ms, which is not optimal.
  */
-void TIM3_Config(void) {
+void TIM_Config_Dynamic(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; // Enable clocking
     TIM3->DIER |= TIM_DIER_UIE; // Enable update event interrupt
     TIM3->CR1 &= ~(TIM_CR1_CKD_Msk);
     NVIC_SetPriority(TIM3_IRQn, 0);
     NVIC_EnableIRQ(TIM3_IRQn);
+}
+
+/**
+ * 
+ */
+void TIM_Config_Static(void) {
+
+    /* TIM1 CONFIGURATION */
+
+    /* GPIO configuration */
+
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+    GPIOA->CRH &= ~GPIO_CRH_CNF8_Msk;
+    GPIOA->CRH |= GPIO_CRH_CNF8_1;
+    GPIOA->CRH &= ~GPIO_CRH_CNF11_Msk;
+    GPIOA->CRH |= GPIO_CRH_CNF11_1;
+
+    GPIOA->CRH |= GPIO_CRH_MODE8_1;
+    GPIOA->CRH |= GPIO_CRH_MODE11_1;
+
+    /* Configure timer itself */
+    RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+    TIM1->CR1 &= ~TIM_CR1_CKD;
+    TIM1->CR1 |= (TIM_CR1_CKD_0 | TIM_CR1_CKD_1);
+    TIM1->PSC = 399;
+    TIM1->ARR = 1199; // Period of the actual PWM freq
+
+    /* Channel 1 */
+    TIM1->CCMR1 |= (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2); // Set mode to PWM1
+    TIM1->CCR1 = TIM1->ARR / 4;
+    TIM1->CCER |= TIM_CCER_CC1E; // Enable Channel 1
+
+    /* Channel 4 */
+    TIM1->CCMR2 |= (TIM_CCMR2_OC4M_0 | TIM_CCMR2_OC4M_1 | TIM_CCMR2_OC4M_2); // PWM2
+    TIM1->CCR4 = 3*TIM1->ARR / 4;
+    TIM1->CCER |= TIM_CCER_CC4E; // Enable Channel 4
+
+    //TIM1->RCR = 255; // Set repetition counter to 255
+    TIM1->EGR |= TIM_EGR_UG;
+    TIM1->BDTR |= TIM_BDTR_MOE; // Enable the damn main outputs
+    //TIM1->CR2 |= TIM_CR2_MMS_2; // Enable master mode OC1REF
+    TIM1->CR1 |= TIM_CR1_CEN; // Enable timer
+    // Jesus, that's a long section
+
+    /* TIM2 CONFIGURATION */
+
+    /* GPIO Configuration, channels 2 and 3!!! */
+    GPIOA->CRL &= ~GPIO_CRL_CNF1_Msk;
+    GPIOA->CRL &= ~GPIO_CRL_CNF2_Msk;
+    GPIOA->CRL |= GPIO_CRL_CNF1_1;
+    GPIOA->CRL |= GPIO_CRL_CNF2_1;
+
+    GPIOA->CRL |= GPIO_CRL_MODE1_1;
+    GPIOA->CRL |= GPIO_CRL_MODE2_1;
+
+    /* Configure timer itself */
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable clocking
+    TIM2->CR1 &= ~TIM_CR1_CKD_Msk;
+    TIM2->CR1 |= (TIM_CR1_CKD_0 | TIM_CR1_CKD_1);
+    TIM2->ARR = 599;
+    TIM2->PSC = 399;
+    //TIM3->SMCR &= ~TIM_SMCR_SMS_Msk; // Set TIM1 as master
+    TIM2->SMCR |= (TIM_SMCR_TS_0 | TIM_SMCR_TS_1 | TIM_SMCR_TS_2); // Set ETR as trigger source
+    TIM2->SMCR |= TIM_SMCR_ETP; // Invert ETR polarity
+    TIM2->SMCR |= TIM_SMCR_SMS_2; // Set TIM3 in slave reset mode
+
+    /* Channel 2 */
+    TIM2->CCMR1 |= (TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2); // Set mode to PWM1
+    TIM2->CCR2 = TIM2->ARR / 2;
+    TIM2->CCER |= TIM_CCER_CC2E; // Enable Channel 2
+
+    /* Channel 3 */
+    TIM2->CCMR2 |= (TIM_CCMR2_OC3M_0 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2); // PWM2
+    TIM2->CCR3 = TIM2->ARR / 2;
+    TIM2->CCER |= TIM_CCER_CC3E; // Enable Channel 3
+    TIM2->CR1 |= TIM_CR1_CEN; // Enable timer
 }
 
 /* System functions */

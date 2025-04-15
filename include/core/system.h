@@ -41,7 +41,8 @@ uint32_t Get_CurrentTick(void);
 void ClockConfig(void);
 void GPIO_Config(void);
 void UART_Config(void);
-void TIM3_Config(void);
+
+void TIM_Config_Static(void);
 
 /* System functions */
 
