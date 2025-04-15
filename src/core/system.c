@@ -228,6 +228,8 @@ void TIM_Config_Static(void) {
     TIM1->CR1 |= (TIM_CR1_CKD_0 | TIM_CR1_CKD_1);
     TIM1->PSC = 399;
     TIM1->ARR = 1199; // Period of the actual PWM freq
+    TIM1->RCR = 255; // Set repetition counter to 255
+    //TIM1->EGR |= TIM_EGR_UG; // ??
 
     /* Channel 1 */
     TIM1->CCMR1 |= (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2); // Set mode to PWM1
@@ -239,11 +241,12 @@ void TIM_Config_Static(void) {
     TIM1->CCR4 = 3*TIM1->ARR / 4;
     TIM1->CCER |= TIM_CCER_CC4E; // Enable Channel 4
 
-    //TIM1->RCR = 255; // Set repetition counter to 255
-    TIM1->EGR |= TIM_EGR_UG;
+    TIM1->DIER |= TIM_DIER_UIE; // Enable UEV ISR
     TIM1->BDTR |= TIM_BDTR_MOE; // Enable the damn main outputs
-    //TIM1->CR2 |= TIM_CR2_MMS_2; // Enable master mode OC1REF
-    TIM1->CR1 |= TIM_CR1_CEN; // Enable timer
+    TIM1->EGR |= TIM_EGR_UG; // Update timer
+
+    NVIC_SetPriority(TIM1_UP_IRQn, 0);
+    NVIC_EnableIRQ(TIM1_UP_IRQn);
     // Jesus, that's a long section
 
     /* TIM2 CONFIGURATION */
@@ -256,6 +259,10 @@ void TIM_Config_Static(void) {
 
     GPIOA->CRL |= GPIO_CRL_MODE1_1;
     GPIOA->CRL |= GPIO_CRL_MODE2_1;
+
+    GPIOA->CRL &= ~GPIO_CRL_CNF0;  // Clear CNF0 bits
+    GPIOA->CRL |= GPIO_CRL_CNF0_0;  // Floating input (CNF=01)
+    GPIOA->CRL &= ~GPIO_CRL_MODE0_Msk;
 
     /* Configure timer itself */
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable clocking
@@ -277,7 +284,8 @@ void TIM_Config_Static(void) {
     TIM2->CCMR2 |= (TIM_CCMR2_OC3M_0 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2); // PWM2
     TIM2->CCR3 = TIM2->ARR / 2;
     TIM2->CCER |= TIM_CCER_CC3E; // Enable Channel 3
-    TIM2->CR1 |= TIM_CR1_CEN; // Enable timer
+    TIM2->CR1 |= TIM_CR1_CEN; // Enable timer 2, first bc won't start wo tim1
+    TIM1->CR1 |= TIM_CR1_CEN; // Enable timer 1
 }
 
 /* System functions */
