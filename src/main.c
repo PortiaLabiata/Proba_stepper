@@ -3,6 +3,7 @@
 #include "driver/interrupts.h"
 #include "driver/uart.h"
 #include "driver/stepper.h"
+#include "driver/timer.h"
 
 UART_Handle_t *hnd = NULL;
 Stepper_Handle_t *stp = NULL;
@@ -21,30 +22,41 @@ int main(void) {
     ClockConfig();
     GPIO_Config();
     UART_Config();
-    TIM_Config_Static();
+    
+    TIM1_CLOCKING_ENABLE();
+    TIM_SetCKD(TIM1, TIM_CKD_4);
+    TIM_DIR_UP(TIM1);
+    TIM_UPDATE_INT_DISABLE(TIM1);
 
-    if ((hnd = UART_Init(USART1)) == NULL) {
-        ; // For fault handler
-    }
-    if ((stp = Stepper_Init(gpios, wave)) == NULL) {
-        ; // For fault handler
-    }
+    TIM_MASTERMODE_SET(TIM1, TIM_MMS_OC3REF);
 
-    ctx.stepper_handle = stp;
-    ctx.uart_handle = hnd;
+    TIM1->PSC = 4799;
+    TIM1->ARR = 199;
 
-    UART_Recieve(hnd, buffer, 3);
-    UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
+    TIM_Channel_Config(TIM1, 1, 99, TIM_CHMODE_PWM1);
+    TIM_Channel_Config(TIM1, 2, 105, TIM_CHMODE_PWM2);
+    TIM_DelayChannel_Config(TIM1, 3, 55, TIM_CHMODE_ACTIVE);
+    TIM_UPDATE(TIM1);
+    
+    TIM_ADV_MOE_SET(TIM1);
 
-    while (1) {
-        if (UART_GetCmdRdy(hnd)) {
-            if (ProcessCommand(stp, buffer, hnd) != SET) {
-                UART_Transmit(hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
-            } else {
-                UART_Transmit(hnd, (uint8_t*)"ack\n", strlen("ack\n"), MAX_TIMEOUT);
-            }
-        }
-    }
+    TIM2_CLOCKING_ENABLE();
+    TIM_SetCKD(TIM2, TIM_CKD_4);
+    TIM_DIR_UP(TIM2);
+    TIM_UPDATE_INT_DISABLE(TIM2);
+
+    TIM2->PSC = 4799;
+    TIM2->ARR = 199;
+
+    TIM_Channel_Config(TIM2, 1, 99, TIM_CHMODE_PWM1);
+    TIM_Channel_Config(TIM2, 2, 105, TIM_CHMODE_PWM2);
+    TIM_SlaveConfigure(TIM2, TIM_SLAVE_TRIGGER_ITR0, TIM_SLAVE_MODE_TRIGGER);
+    TIM_UPDATE(TIM2);
+    TIM2->CNT = 299;
+
+    TIM_ENABLE(TIM1);
+
+    while (1) ;
 
 }
 

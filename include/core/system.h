@@ -23,6 +23,11 @@
     #define NULL ((void *)0)
 #endif
 
+/* Macros */
+
+#define BIT_SET(__REG__, __MASK__) __REG__ |= MASK
+#define BIT_RESET(__REG__, __MASK__) __REG__ &= ~MASK
+
 /* Global definitions */
 
 extern volatile uint32_t _current_ticks;
@@ -38,11 +43,14 @@ uint32_t Get_CurrentTick(void);
 
 /* Configuration functions */
 
+uint32_t Get_TIM_Div(TIM_TypeDef *tim);
+
 void ClockConfig(void);
 void GPIO_Config(void);
 void UART_Config(void);
 
 void TIM_Config_Static(void);
+void TIM_BasicConfig(void);
 
 /* System functions */
 

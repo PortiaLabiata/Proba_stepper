@@ -32,6 +32,11 @@ typedef enum {
     UART_ERROR_SOFT
 } UART_Status_t;
 
+typedef enum {
+    SYS_OK,
+    SYS_ERROR
+} System_Status_t;
+
 /* System context */
 
 extern System_Context_t ctx;
