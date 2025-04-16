@@ -48,9 +48,7 @@ uint32_t Get_TIM_Div(TIM_TypeDef *tim);
 void ClockConfig(void);
 void GPIO_Config(void);
 void UART_Config(void);
-
-void TIM_Config_Static(void);
-void TIM_BasicConfig(void);
+void TIM2_Config(void);
 
 /* System functions */
 

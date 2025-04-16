@@ -1,4 +1,11 @@
 void TimerAutoBackup(void) {
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+    GPIOA->CRH &= ~(GPIO_CRH_CNF8_Msk | GPIO_CRH_CNF9_Msk);
+    GPIOA->CRH |= (GPIO_CRH_CNF8_1 | GPIO_CRH_CNF9_1 | GPIO_CRH_MODE8_1 | GPIO_CRH_MODE9_1);
+
+    GPIOA->CRL &= ~(GPIO_CRL_CNF0_Msk | GPIO_CRL_CNF1_Msk);
+    GPIOA->CRL |= (GPIO_CRL_CNF0_1 | GPIO_CRL_CNF1_1 | GPIO_CRL_MODE0_1 | GPIO_CRL_MODE1_1);
+
     TIM1_CLOCKING_ENABLE();
     TIM_SetCKD(TIM1, TIM_CKD_4);
     TIM_DIR_UP(TIM1);
@@ -32,3 +39,22 @@ void TimerAutoBackup(void) {
 
     TIM_ENABLE(TIM1);
 }
+
+Stepper_Init(gpios, wave);
+    UART_Init(USART1);
+
+    ctx.stepper_handle = stp;
+    ctx.uart_handle = hnd;
+    
+    UART_Recieve(hnd, buffer, 3);
+    UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
+
+    while (1) {
+        if (UART_GetCmdRdy(hnd)) {
+            if (ProcessCommand(stp, buffer, hnd) != SET) {
+                UART_Transmit(hnd, (uint8_t*)"ack\n", strlen("ack\n"), MAX_TIMEOUT);
+            } else {
+                UART_Transmit(hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
+            }
+        }
+    }

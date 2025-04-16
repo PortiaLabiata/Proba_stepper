@@ -3,7 +3,6 @@
 #include "driver/interrupts.h"
 #include "driver/uart.h"
 #include "driver/stepper.h"
-#include "driver/timer.h"
 
 UART_Handle_t *hnd = NULL;
 Stepper_Handle_t *stp = NULL;
@@ -22,10 +21,26 @@ int main(void) {
     ClockConfig();
     GPIO_Config();
     UART_Config();
-    
-    
+    TIM2_Config();
 
-    while (1) ;
+    stp = Stepper_Init(gpios, wave);
+    hnd = UART_Init(USART1);
+
+    ctx.stepper_handle = stp;
+    ctx.uart_handle = hnd;
+    
+    UART_Recieve(hnd, buffer, 3);
+    UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
+
+    while (1) {
+        if (UART_GetCmdRdy(hnd)) {
+            if (ProcessCommand(stp, buffer, hnd) == SET) {
+                UART_Transmit(hnd, (uint8_t*)"ack\n", strlen("ack\n"), MAX_TIMEOUT);
+            } else {
+                UART_Transmit(hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
+            }
+        }
+    }
 
 }
 

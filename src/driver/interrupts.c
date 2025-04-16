@@ -18,7 +18,7 @@ void TIM2_IRQHandler(void) {
     }
 }
 
-void TIM1_UP_IRQHandler(void) {
+/* void TIM1_UP_IRQHandler(void) {
     TIM1->SR &= ~TIM_SR_UIF;
     GPIOC->ODR ^= GPIO_ODR_ODR13;
-}
+} */

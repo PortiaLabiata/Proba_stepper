@@ -174,45 +174,49 @@ void GPIO_Config(void) {
     GPIOC->CRH |= (GPIO_MODE_OUTPUT << GPIO_CRH_MODE13_Pos); // Set mode to 2MHz
     GPIOC->CRH &= ~(GPIO_OUTPUT_PP << GPIO_CRH_CNF13_Pos); // Set mode to output PP
 
-    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
-    GPIOA->CRH &= ~(GPIO_CRH_CNF8_Msk | GPIO_CRH_CNF9_Msk);
-    GPIOA->CRH |= (GPIO_CRH_CNF8_1 | GPIO_CRH_CNF9_1 | GPIO_CRH_MODE8_1 | GPIO_CRH_MODE9_1);
+    RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
 
-    GPIOA->CRL &= ~(GPIO_CRL_CNF0_Msk | GPIO_CRL_CNF1_Msk);
-    GPIOA->CRL |= (GPIO_CRL_CNF0_1 | GPIO_CRL_CNF1_1 | GPIO_CRL_MODE0_1 | GPIO_CRL_MODE1_1);
+    GPIOB->CRL &= ~(GPIO_CRL_CNF6_Msk | GPIO_CRL_CNF7_Msk);
+    GPIOB->CRH &= ~(GPIO_CRH_CNF8_Msk | GPIO_CRH_CNF9_Msk);
+
+    GPIOB->CRL |= (GPIO_CRL_MODE6_1 | GPIO_CRL_MODE7_1);
+    GPIOB->CRH |= (GPIO_CRH_MODE8_1 | GPIO_CRH_MODE9_1);
 }
 
 /**
  * \brief Low-level configuration of UART, including GPIO.
  */
 void UART_Config(void) {
-    RCC->APB2ENR |= (RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
-
-    // 1. Clear remap bit first (avoid glitches)
-    AFIO->MAPR &= ~AFIO_MAPR_USART1_REMAP;  
-    // 2. Enable remap: PB6=TX, PB7=RX
-    AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;    
+    RCC->APB2ENR |= (RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN);
 
     // Configure PB6 (TX) as Alternate Function Push-Pull Output
-    GPIOB->CRL &= ~(GPIO_CRL_CNF6 | GPIO_CRL_MODE6);
-    GPIOB->CRL |= (GPIO_CRL_CNF6_1 | GPIO_CRL_MODE6_1);  // 50MHz output
+    GPIOA->CRH &= ~(GPIO_CRH_CNF9 | GPIO_CRH_MODE9);
+    GPIOA->CRH |= (GPIO_CRH_CNF9_1 | GPIO_CRH_MODE9_1);  // 50MHz output
 
     // Configure PB7 (RX) as Input Floating (no pull-up/pull-down)
-    GPIOB->CRL &= ~(GPIO_CRL_CNF7 | GPIO_CRL_MODE7);
-    GPIOB->CRL |= GPIO_CRL_CNF7_1;  // Input floating
-
+    GPIOA->CRH &= ~(GPIO_CRH_CNF10 | GPIO_CRH_MODE10);
+    GPIOA->CRH |= GPIO_CRH_CNF10_1;  // Input floating
 
     /* USART config */
 
     USART1->BRR = PCLK2_FREQ / UART_BAUD_RATE;
-
     USART1->CR1 |= (USART_CR1_TE | USART_CR1_RE | \
              USART_CR1_UE); // Enable UART, reciever and transmitter
     // No need to set M bit, word length=8 bit.
-    //USART1->CR2 |= (0b00 << USART_CR2_STOP_Pos); // 1 STOP bit, redundant.
 
     NVIC_SetPriority(USART1_IRQn, 0);
     NVIC_EnableIRQ(USART1_IRQn);
+}
+
+/**
+ * \brief Low-level configuration of TIM2.
+ */
+void TIM2_Config(void) {
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; // Enable clocking
+    TIM2->DIER |= TIM_DIER_UIE; // Enable update event interrupt
+    TIM2->CR1 &= ~(TIM_CR1_CKD_Msk);
+    NVIC_SetPriority(TIM2_IRQn, 0);
+    NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 /* System functions */
