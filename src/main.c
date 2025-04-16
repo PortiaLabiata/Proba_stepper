@@ -23,38 +23,7 @@ int main(void) {
     GPIO_Config();
     UART_Config();
     
-    TIM1_CLOCKING_ENABLE();
-    TIM_SetCKD(TIM1, TIM_CKD_4);
-    TIM_DIR_UP(TIM1);
-    TIM_UPDATE_INT_DISABLE(TIM1);
-
-    TIM_MASTERMODE_SET(TIM1, TIM_MMS_OC3REF);
-
-    TIM1->PSC = 4799;
-    TIM1->ARR = 199;
-
-    TIM_Channel_Config(TIM1, 1, 99, TIM_CHMODE_PWM1);
-    TIM_Channel_Config(TIM1, 2, 105, TIM_CHMODE_PWM2);
-    TIM_DelayChannel_Config(TIM1, 3, 55, TIM_CHMODE_ACTIVE);
-    TIM_UPDATE(TIM1);
     
-    TIM_ADV_MOE_SET(TIM1);
-
-    TIM2_CLOCKING_ENABLE();
-    TIM_SetCKD(TIM2, TIM_CKD_4);
-    TIM_DIR_UP(TIM2);
-    TIM_UPDATE_INT_DISABLE(TIM2);
-
-    TIM2->PSC = 4799;
-    TIM2->ARR = 199;
-
-    TIM_Channel_Config(TIM2, 1, 99, TIM_CHMODE_PWM1);
-    TIM_Channel_Config(TIM2, 2, 105, TIM_CHMODE_PWM2);
-    TIM_SlaveConfigure(TIM2, TIM_SLAVE_TRIGGER_ITR0, TIM_SLAVE_MODE_TRIGGER);
-    TIM_UPDATE(TIM2);
-    TIM2->CNT = 299;
-
-    TIM_ENABLE(TIM1);
 
     while (1) ;
 
