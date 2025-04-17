@@ -2,10 +2,6 @@
 #include "core/system.h"
 #include "core/types.h"
 
-/* Defines */
-
-#define MAX_UARTS 2
-
 /* Typedefs */
 
 typedef struct UART_Handle UART_Handle_t;

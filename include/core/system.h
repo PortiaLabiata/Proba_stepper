@@ -12,7 +12,8 @@
 #define HSI_FREQ         8000000 // Hz
 #define HSE_FREQ         16000000 // I don't have it, may vary
 
-#define UART_BAUD_RATE   115200 
+#define UART_BAUD_RATE   115200
+#define MAX_UARTS        2
 
 #define SYSCLK_FREQ      _sysclk_freq
 #define AHB_FREQ         _ahb_freq
