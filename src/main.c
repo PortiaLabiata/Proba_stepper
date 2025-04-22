@@ -24,15 +24,11 @@ int main(void) {
     UART_Config();
     TIM2_Config();
 
-    GPIOC->BSRR |= GPIO_BSRR_BR13;
-    delay(100);
-    GPIOC->BSRR |= GPIO_BSRR_BS13;
-    delay(100);
-    GPIOC->BSRR |= GPIO_BSRR_BR13;
-
-#ifdef USE_IWDG
-    IWDG_Config();
+#ifdef USE_STARTUP_BLINK
+    STARTUP_BLINK();
 #endif
+
+    IWDG_Config();
 
     stp = Stepper_Init(gpios, wave);
     hnd = UART_Init(USART1);
@@ -51,7 +47,7 @@ int main(void) {
                 UART_Transmit(hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
             }
         }
-        //delay(2000);
+        //delay(7000);
         IWDG_RELOAD();
     }
 

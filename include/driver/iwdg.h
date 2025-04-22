@@ -8,10 +8,14 @@
 #define IWDG_START       0xCCCCUL
 #define IWDG_RESET       0xAAAAUL
 
+#ifdef USE_IWDG
 #define IWDG_RELOAD() do { \
     IWDG->KR &= ~IWDG_KR_KEY_Msk; \
     IWDG->KR |= IWDG_RESET; \
 } while (0)
+#else
+#define IWDG_RELOAD() __NOP()
+#endif
 
 #define IWDG_AWAIT_READINESS() while (IWDG->SR & IWDG_SR_PVU_Msk) __NOP();
 

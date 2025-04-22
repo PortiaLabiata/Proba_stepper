@@ -3,6 +3,17 @@
 #include <string.h>
 #include "core/system.h"
 #include "core/types.h"
+#include "core/prefs.h"
+
+/* Macros */
+
+#define STARTUP_BLINK() do { \
+    GPIOC->BSRR |= GPIO_BSRR_BR13; \
+    delay(100); \
+    GPIOC->BSRR |= GPIO_BSRR_BS13; \
+    delay(100); \
+    GPIOC->BSRR |= GPIO_BSRR_BR13; \
+} while (0)
 
 /* Forward declarations */
 
