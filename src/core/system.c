@@ -144,6 +144,12 @@ void ClockConfig(void) {
     while (!(RCC->CR & RCC_CR_HSIRDY_Msk)) 
         __NOP();
 
+#ifdef USE_IWDG
+    RCC->CSR |= RCC_CSR_LSION; // Enable LSI for IWDG
+    while (!(RCC->CR & RCC_CSR_LSIRDY_Msk)) // Wait for LSI to start
+        __NOP();
+#endif
+
     // Setting PLL source is unnecessary, since reset value is 0 and
     // it corresponds to HSI/2. f=48MHz
     // Settings: PLL as SYSCLK clock source, PLLMUL=12, ADC PSC=4.

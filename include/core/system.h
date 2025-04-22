@@ -1,6 +1,7 @@
 #pragma once
 #include <stm32f103x6.h>
 #include "core/types.h"
+#include "core/prefs.h"
 
 /* Magic numbers */
 
