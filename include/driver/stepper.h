@@ -1,6 +1,14 @@
 #include "core/system.h"
 #include "core/types.h"
 
+/* Typedefs */
+
+typedef enum {
+    STEPPER_MODE_FULLSTEP_1PHASE,
+    STEPPER_MODE_FULLSTEP_2PHASE,
+    STEPPER_MODE_HALFSTEP
+} Stepper_Mode_t;
+
 /* Constants */
 
 #define CLOCKWISE (uint8_t)0
@@ -8,13 +16,16 @@
 #define N_PINS (uint8_t)4
 #define MAX_STEPPERS 2
 
+#define STEPPER_LEAVE_ON_NULL(__CONF__) if (__CONF__ == NULL) return STEPPER_ERROR_SOFT;
+
 /* Typedefs */
 
 typedef struct Stepper_Handle Stepper_Handle_t;
 
 /* Functions */
 
-Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs);
+Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *config_1ph, uint8_t *config_2ph, \
+    uint8_t *config_half);
 Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir);
 
 Stepper_Status_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold);

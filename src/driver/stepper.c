@@ -13,6 +13,11 @@ struct Stepper_Handle {
     volatile uint8_t config_idx;
     uint8_t direc;
     volatile uint32_t steps_left;
+    uint8_t mode;
+
+    uint8_t *config_1ph;
+    uint8_t *config_2ph;
+    uint8_t *config_half;
 };
 
 /* Handle pool */
@@ -28,16 +33,51 @@ static uint8_t _n_steppers;
  * \param[in] configs Array of sequential configurations of stepper GPIO pins.
  * \returns Pointer to a stepper object. Unsafe, btw.
  */
-Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *configs) {
+Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *config_1ph, uint8_t *config_2ph, \
+    uint8_t *config_half) {
     if (_n_steppers >= MAX_STEPPERS) return NULL;
     
     Stepper_Handle_t *stp = &_stepper_pool[_n_steppers++];
     stp->gpios = gpios;
-    stp->config = configs;
+    stp->config = config_1ph;
+
+    stp->config_1ph = config_1ph;
+    stp->config_2ph = config_2ph;
+    stp->config_half = config_half;
+
     stp->config_idx = 0;
+    stp->mode = STEPPER_MODE_FULLSTEP_1PHASE;
 
     GPIOB->ODR &= ~(gpios[0] | gpios[1] | gpios[2] | gpios[3]);
     return stp;
+}
+
+/**
+ * \brief Sets the stepper mode, either full step 1 phase, full step 2 phase of half step.
+ * \param[in] stp Stepper handle.
+ * \param[in] mode Stepper mode, either STEPPER_MODE_FULLSTEP_1PHASE, STEPPER_MODE_FULLSTEP_2PHASE,
+ * or STEPPER_MODE_HALFSTEP.
+ * \returns Operation status.
+ */
+Stepper_Status_t Stepper_SetMode(Stepper_Handle_t *stp, Stepper_Mode_t mode) {
+    switch (mode) {
+        case STEPPER_MODE_FULLSTEP_1PHASE:
+            STEPPER_LEAVE_ON_NULL(stp->config_1ph);
+            stp->config = stp->config_1ph;
+            break;
+        case STEPPER_MODE_FULLSTEP_2PHASE:
+            STEPPER_LEAVE_ON_NULL(stp->config_2ph);
+            stp->config = stp->config_2ph;
+            break;
+        case STEPPER_MODE_HALFSTEP:
+            STEPPER_LEAVE_ON_NULL(stp->config_half);
+            stp->config = stp->config_half;
+            break;
+        default:
+            return STEPPER_ERROR_SOFT;
+    }
+    stp->mode = mode;
+    return STEPPER_OK;
 }
 
 /**

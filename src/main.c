@@ -15,6 +15,13 @@ const uint8_t wave[4] = {
     0b0001
 };
 
+const uint8_t wave_full_phase[4] = {
+    0b1010,
+    0b0110,
+    0b0101,
+    0b1001
+};
+
 const uint32_t gpios[4] = {GPIO_ODR_ODR6, GPIO_ODR_ODR7, GPIO_ODR_ODR8, GPIO_ODR_ODR9};
 volatile uint8_t buffer[10];
 
@@ -30,7 +37,7 @@ int main(void) {
 
     IWDG_Config();
 
-    stp = Stepper_Init(gpios, wave);
+    stp = Stepper_Init(gpios, wave, NULL, NULL);
     hnd = UART_Init(USART1);
 
     ctx.stepper_handle = stp;
@@ -38,6 +45,7 @@ int main(void) {
     
     UART_Recieve(hnd, buffer, 3);
     UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
+    Stepper_Rotate_IT(ctx.stepper_handle, 10, CLOCKWISE, 10);
 
     while (1) {
         if (UART_GetCmdRdy(hnd)) {
