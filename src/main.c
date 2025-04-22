@@ -3,6 +3,7 @@
 #include "driver/interrupts.h"
 #include "driver/uart.h"
 #include "driver/stepper.h"
+#include "driver/iwdg.h"
 
 UART_Handle_t *hnd = NULL;
 Stepper_Handle_t *stp = NULL;
@@ -23,6 +24,16 @@ int main(void) {
     UART_Config();
     TIM2_Config();
 
+    GPIOC->BSRR |= GPIO_BSRR_BR13;
+    delay(100);
+    GPIOC->BSRR |= GPIO_BSRR_BS13;
+    delay(100);
+    GPIOC->BSRR |= GPIO_BSRR_BR13;
+
+#ifdef USE_IWDG
+    IWDG_Config();
+#endif
+
     stp = Stepper_Init(gpios, wave);
     hnd = UART_Init(USART1);
 
@@ -40,6 +51,8 @@ int main(void) {
                 UART_Transmit(hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
             }
         }
+        //delay(2000);
+        IWDG_RELOAD();
     }
 
 }
