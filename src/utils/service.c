@@ -1,12 +1,12 @@
 #include "utils/service.h"
 
 /**
- * \todo Add error handling.
  * \brief Turns character into decimal number in the dumbest way possible.
  * \param[in] c Character.
  * \returns Number.
  */
 int atoi(char *c) {
+    if (*c < '0' || *c > '9') return -1;
     return (int)(*c - '0');
 }
 
