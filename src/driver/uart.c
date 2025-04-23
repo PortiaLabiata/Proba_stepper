@@ -65,7 +65,7 @@ UART_Status_t UART_Transmit(UART_Handle_t *handle, uint8_t *pData, uint32_t size
  * \param[in] size Data size.
  * \returns Operation status.
  */
-UART_Status_t UART_Recieve(UART_Handle_t *handle, uint8_t *pData, uint32_t size) {
+UART_Status_t UART_Recieve(UART_Handle_t *handle, volatile uint8_t *pData, uint32_t size) {
     handle->rx_left = size;
     handle->cursor = pData;
     return UART_OK;

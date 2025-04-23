@@ -31,7 +31,3 @@ typedef enum {
     IWDG_PSC_256,
     IWDG_PSC_256_1
 } IWDG_Prescaler_t;
-
-/* Functions */
-
-void IWDG_Config(void);

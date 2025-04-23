@@ -14,7 +14,7 @@ UART_Handle_t *UART_Init(USART_TypeDef *inst);
 /* IO */
 
 UART_Status_t UART_Transmit(UART_Handle_t *handle, uint8_t *pData, uint32_t size, int timeout);
-UART_Status_t UART_Recieve(UART_Handle_t *handle, uint8_t *pData, uint32_t size);
+UART_Status_t UART_Recieve(UART_Handle_t *handle, volatile uint8_t *pData, uint32_t size);
 
 /* Getters/setters */
 

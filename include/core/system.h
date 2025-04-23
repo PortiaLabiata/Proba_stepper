@@ -50,3 +50,4 @@ void ClockConfig(void);
 void GPIO_Config(void);
 void UART_Config(void);
 void TIM2_Config(void);
+void IWDG_Config(void);

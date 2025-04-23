@@ -7,17 +7,17 @@
  * of reading a value just a little bit shorter.
  */
 struct Stepper_Handle {
-    uint32_t *gpios;
-    uint8_t *config;
+    const uint32_t *gpios;
+    const uint8_t *config;
     TIM_TypeDef *instance;
     volatile uint8_t config_idx;
     uint8_t direc;
     volatile uint32_t steps_left;
     uint8_t mode;
 
-    uint8_t *config_1ph;
-    uint8_t *config_2ph;
-    uint8_t *config_half;
+    const uint8_t *config_1ph;
+    const uint8_t *config_2ph;
+    const uint8_t *config_half;
 };
 
 /* Handle pool */
@@ -33,8 +33,8 @@ static uint8_t _n_steppers;
  * \param[in] configs Array of sequential configurations of stepper GPIO pins.
  * \returns Pointer to a stepper object. Unsafe, btw.
  */
-Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *config_1ph, uint8_t *config_2ph, \
-    uint8_t *config_half) {
+Stepper_Handle_t *Stepper_Init(const uint32_t *gpios, const uint8_t *config_1ph, const uint8_t *config_2ph, \
+    const uint8_t *config_half) {
     if (_n_steppers >= MAX_STEPPERS) return NULL;
     
     Stepper_Handle_t *stp = &_stepper_pool[_n_steppers++];

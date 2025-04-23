@@ -30,4 +30,4 @@ typedef struct Stepper_Handle Stepper_Handle_t;
 extern UART_Handle_t *hnd;
 extern volatile uint8_t buffer[10];
 
-uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd, UART_Handle_t *handle);
+uint8_t ProcessCommand(Stepper_Handle_t *stp, volatile uint8_t *cmd, UART_Handle_t *handle);

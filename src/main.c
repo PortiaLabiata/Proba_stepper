@@ -65,7 +65,7 @@ int main(void) {
 /**
  * \todo Add error handling.
  */
-uint8_t ProcessCommand(Stepper_Handle_t *stp, uint8_t *cmd, UART_Handle_t *handle) {
+uint8_t ProcessCommand(Stepper_Handle_t *stp, volatile uint8_t *cmd, UART_Handle_t *handle) {
     UART_Recieve(handle, buffer, 3);
     UART_SetCmdRdy(handle, RESET);
     int steps = atoi((char*)(cmd + 1)) * 50;
