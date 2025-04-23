@@ -107,15 +107,6 @@ static uint32_t Get_PCLK1_Freq(void) {
     }
 }
 
-
-/**
- * \brief Gets current SysTick tick from the global variable.
- * \returns Current tick.
- */
-uint32_t Get_CurrentTick(void) {
-    return _current_ticks;
-}
-
 /**
  * \brief Gets current TIM DTS frequency.
  * \param[in] tim Timer structure.
@@ -227,13 +218,3 @@ void TIM2_Config(void) {
 
 /* System functions */
 
-/**
- * \brief Busy-waiting loop for delays, based on SysTick ticks.
- * \param[in] ms Delay duration in ms.
- */
-void delay(uint32_t ms) {
-    uint32_t tick_start = Get_CurrentTick();
-    while (Get_CurrentTick() - tick_start < ms) {
-        __NOP();
-    }
-}

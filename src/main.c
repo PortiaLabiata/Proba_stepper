@@ -45,6 +45,7 @@ int main(void) {
     
     UART_Recieve(hnd, buffer, 3);
     UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
+    Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_2PHASE);
     Stepper_Rotate_IT(ctx.stepper_handle, 10, CLOCKWISE, 10);
 
     while (1) {

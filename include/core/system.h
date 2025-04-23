@@ -26,8 +26,8 @@
 
 /* Macros */
 
-#define BIT_SET(__REG__, __MASK__) __REG__ |= MASK
-#define BIT_RESET(__REG__, __MASK__) __REG__ &= ~MASK
+#define BIT_SET(__REG__, __MASK__) __REG__ |= __MASK__
+#define BIT_RESET(__REG__, __MASK__) __REG__ &= ~__MASK__
 
 /* Global definitions */
 
@@ -50,7 +50,3 @@ void ClockConfig(void);
 void GPIO_Config(void);
 void UART_Config(void);
 void TIM2_Config(void);
-
-/* System functions */
-
-void delay(uint32_t ms);

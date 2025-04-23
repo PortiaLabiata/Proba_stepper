@@ -5,7 +5,6 @@
 struct UART_Handle {
     volatile USART_TypeDef *instance;
     volatile uint8_t *cursor;
-    volatile uint8_t error_code;
     volatile uint8_t command_ready;
     volatile uint32_t rx_left;
 };

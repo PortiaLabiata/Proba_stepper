@@ -1,5 +1,6 @@
 #include "core/system.h"
 #include "core/types.h"
+#include "utils/service.h"
 
 /* Typedefs */
 
@@ -27,6 +28,7 @@ typedef struct Stepper_Handle Stepper_Handle_t;
 Stepper_Handle_t *Stepper_Init(uint32_t *gpios, uint8_t *config_1ph, uint8_t *config_2ph, \
     uint8_t *config_half);
 Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir);
+Stepper_Status_t Stepper_SetMode(Stepper_Handle_t *stp, Stepper_Mode_t mode);
 
 Stepper_Status_t Stepper_Halt(Stepper_Handle_t *stp, uint8_t hold);
 Stepper_Status_t Stepper_Rotate(Stepper_Handle_t *stp, uint32_t steps, uint8_t dir, uint32_t del);
