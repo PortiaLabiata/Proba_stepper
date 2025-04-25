@@ -1,7 +1,11 @@
 import sys, serial, glob
 
-ROTATE_BYTE = 1
-HALT_BYTE = 2
+CLOCKWISE_BYTE = 1
+COUNTERCLOCKWISE_BYTE = 2
+HALT_BYTE = 3
+
+ACK_RESP = 1
+ERR_RESP = 2
 
 def serial_ports():
     """ Lists serial port names
@@ -31,11 +35,11 @@ def serial_ports():
             pass
     return result
 
-def rotate_command(steps: int, delay: int) -> int:
-    if 0 <= steps <= 255 and 0 <= delay <= 255:
-        return (ROTATE_BYTE << 2) + (steps << 1) + delay
+def rotate_command(direc: int, steps: int, delay: int) -> list[int]:
+    if (0 <= steps <= 255) and (0 <= delay <= 255) and (direc in [CLOCKWISE_BYTE, COUNTERCLOCKWISE_BYTE]):
+        return [direc, steps, delay]
     else:
         raise ValueError("Error! All parameters must be between 0 and 255.")
 
-def halt_command() -> int:
-    return (HALT_BYTE << 3)
+def halt_command() -> list[int]:
+    return [HALT_BYTE, 0, 0]

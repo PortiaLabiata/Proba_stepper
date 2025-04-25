@@ -28,3 +28,7 @@ void delay(uint32_t ms) {
 uint32_t Get_CurrentTick(void) {
     return _current_ticks;
 }
+
+char itoa(char digit) {
+    return (char)('0' + digit);
+}

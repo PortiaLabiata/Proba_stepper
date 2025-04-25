@@ -50,11 +50,11 @@ int main(void) {
 
     while (1) {
         if (UART_GetCmdRdy(hnd)) {
+            uint8_t response[1] = {ERR_RESP};
             if (ProcessCommand(stp, buffer, hnd) == SET) {
-                UART_Transmit(hnd, (uint8_t*)"ack\n", strlen("ack\n"), MAX_TIMEOUT);
-            } else {
-                UART_Transmit(hnd, (uint8_t*)"err\n", strlen("err\n"), MAX_TIMEOUT);
+                response[0] = ACK_RESP;  
             }
+            UART_Transmit(hnd, response, 1, MAX_TIMEOUT);
         }
         //delay(7000);
         IWDG_RELOAD();
@@ -68,16 +68,16 @@ int main(void) {
 uint8_t ProcessCommand(Stepper_Handle_t *stp, volatile uint8_t *cmd, UART_Handle_t *handle) {
     UART_Recieve(handle, buffer, 3);
     UART_SetCmdRdy(handle, RESET);
-    int steps = atoi((char*)(cmd + 1)) * 50;
-    int speed = atoi((char*)(cmd + 2)) * 10;
+    int steps = *(cmd + 1);
+    int speed = *(cmd + 2);
     switch (cmd[0]) {
-        case 'f':
+        case FORW_CMD:
             Stepper_Rotate_IT(stp, steps, CLOCKWISE, speed);
             return SET;
-        case 'r':
+        case REV_CMD:
             Stepper_Rotate_IT(stp, steps, COUNTERCLOCKWISE, speed);
             return SET;
-        case 'h':
+        case HALT_CMD:
             Stepper_Halt_IT(stp, RESET);
             return SET;
         default:

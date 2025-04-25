@@ -13,7 +13,13 @@
 #define HSE_FREQ         16000000 // I don't have it, may vary
 
 #define UART_BAUD_RATE   115200
-#define MAX_UARTS        2
+#define MAX_UARTS        (uint8_t)2
+#define FORW_CMD         (uint8_t)1
+#define REV_CMD          (uint8_t)2
+#define HALT_CMD         (uint8_t)3
+
+#define ACK_RESP         (uint8_t)1
+#define ERR_RESP         (uint8_t)2
 
 #define SYSCLK_FREQ      _sysclk_freq
 #define AHB_FREQ         _ahb_freq

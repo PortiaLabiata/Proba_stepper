@@ -144,8 +144,14 @@ class ControlApp(QMainWindow):
         self.steps_vernier = Vernier("Steps", self.font)
         self.delay_vernier = Vernier("Delay, ms", self.font)
 
-        self.panel = CommandPanel(["Rotate!", "Halt!"], [self.rotate, self.halt], self.font)
+        self.panel = CommandPanel(["Forward!", "Reverse!", "Halt!"], 
+            [self.forward, self.reverse, self.halt], self.font)
         self.ports_panel = SerialPortSelection(self.font)
+
+        self.response_lcd = QLabel()
+        self.response_lcd.setFont(self.font)
+        self.response_lcd.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.response_lcd.setText(str(logic.ACK_RESP))
 
         self.main_layout.addWidget(self.panel)
         self.main_layout.addWidget(self.steps_vernier)
@@ -155,20 +161,30 @@ class ControlApp(QMainWindow):
 
         self.overhead_layout.addWidget(self.main_container)
         self.overhead_layout.addWidget(self.ports_panel)
+        self.overhead_layout.addWidget(self.response_lcd)
         self.container.setLayout(self.overhead_layout)
         self.setCentralWidget(self.container)
     
-    def rotate(self):
-        self.ports_panel.port.write(logic.rotate_command(
+    def forward(self):
+        print(self.ports_panel.port.write(logic.rotate_command(
+            logic.CLOCKWISE_BYTE,
             self.steps_vernier.value,
-            self.delay_vernier.value))
+            self.delay_vernier.value)))
+        self.response_lcd.setText(str(self.ports_panel.port.read()))
+    
+    def reverse(self):
+        print(self.ports_panel.port.write(logic.rotate_command(
+            logic.COUNTERCLOCKWISE_BYTE,
+            self.steps_vernier.value,
+            self.delay_vernier.value)))
+        self.response_lcd.setText(str(self.ports_panel.port.read()))
     
     def halt(self):
-        self.ports_panel.port.write(logic.halt_command())
+        print(self.ports_panel.port.write(logic.halt_command()))
+        self.response_lcd.setText(str(self.ports_panel.port.read()))
 
 app = QApplication([])
 window = ControlApp(12)
 window.show()
-
 app.exec()
         
