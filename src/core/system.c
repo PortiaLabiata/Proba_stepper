@@ -219,7 +219,7 @@ void TIM2_Config(void) {
 #ifdef USE_IWDG
 
 /**
- * \brief Low-level configuration of IWDG, in case if it is enabled by defining USE_IWDG.
+ * \brief Low-level configuration of IWDG, in case if it is enabled by defining IWDG_ENABLE.
  */
 void IWDG_Config(void) {
     IWDG->KR &= ~IWDG_KR_KEY_Msk; // Reset KR
@@ -235,7 +235,7 @@ void IWDG_Config(void) {
 
 /**
  * \brief Stub definition of low-level IWDG configuration function, for 
- * when USE_IWDG is not defined.
+ * when IWDG_ENABLE is not defined.
  */
 void IWDG_Config(void) {};
 

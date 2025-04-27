@@ -31,7 +31,7 @@ int main(void) {
     UART_Config();
     TIM2_Config();
 
-#ifdef USE_STARTUP_BLINK
+#ifdef STARTUP_BLINK_ENABLE
     STARTUP_BLINK();
 #endif
 
@@ -50,6 +50,7 @@ int main(void) {
 
     while (1) {
         if (UART_GetCmdRdy(hnd)) {
+            LOG("Command recieved\n");
             uint8_t response[1] = {ERR_RESP};
             if (ProcessCommand(stp, buffer, hnd) == SET) {
                 response[0] = ACK_RESP;  

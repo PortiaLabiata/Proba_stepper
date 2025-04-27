@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, QMargins
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
-    QPushButton, QComboBox, QDial, QLCDNumber, QLabel, QLineEdit,
+    QPushButton, QComboBox, QDial, QLabel, QLineEdit,
     QApplication
 )
 

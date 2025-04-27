@@ -8,7 +8,7 @@
 #define IWDG_START       0xCCCCUL
 #define IWDG_RESET       0xAAAAUL
 
-#ifdef USE_IWDG
+#ifdef IWDG_ENABLE
 #define IWDG_RELOAD() do { \
     IWDG->KR &= ~IWDG_KR_KEY_Msk; \
     IWDG->KR |= IWDG_RESET; \

@@ -29,6 +29,24 @@ uint32_t Get_CurrentTick(void) {
     return _current_ticks;
 }
 
+/**
+ * \brief Turns a digit into a character for printing.
+ * \param[in] digit Digit to be turned into a character.
+ * \returns The character.
+ */
 char itoa(char digit) {
+    if (digit < 0 || digit > 9) return -1;
     return (char)('0' + digit);
+}
+
+
+/**
+ * \brief Outputs a string through the SWO line of the SW interface.
+ * \param[in] output Output string.
+ * \param[in] length Length of the string.
+ */
+void ITM_Print(char *output, int length) {
+    for (char *c = output; c - output < length; c++) {
+        ITM_SendChar((uint32_t)*c);
+    }
 }
