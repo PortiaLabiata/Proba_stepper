@@ -5,9 +5,6 @@
 #include "driver/stepper.h"
 #include "driver/iwdg.h"
 
-UART_Handle_t *hnd = NULL;
-Stepper_Handle_t *stp = NULL;
-
 const uint8_t wave[4] = {
     0b1000,
     0b0010,
@@ -37,8 +34,8 @@ int main(void) {
 
     IWDG_Config();
 
-    stp = Stepper_Init(gpios, wave, NULL, NULL);
-    hnd = UART_Init(USART1);
+    Stepper_Handle_t *stp = Stepper_Init(TIM2, gpios, wave, NULL, NULL);
+    UART_Handle_t *hnd = UART_Init(USART1);
 
     ctx.stepper_handle = stp;
     ctx.uart_handle = hnd;

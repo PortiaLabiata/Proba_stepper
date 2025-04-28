@@ -25,7 +25,7 @@ typedef struct Stepper_Handle Stepper_Handle_t;
 
 /* Functions */
 
-Stepper_Handle_t *Stepper_Init(const uint32_t *gpios, const uint8_t *config_1ph, const uint8_t *config_2ph, \
+Stepper_Handle_t *Stepper_Init(TIM_TypeDef *inst, const uint32_t *gpios, const uint8_t *config_1ph, const uint8_t *config_2ph, \
     const uint8_t *config_half);
 Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir);
 Stepper_Status_t Stepper_SetMode(Stepper_Handle_t *stp, Stepper_Mode_t mode);

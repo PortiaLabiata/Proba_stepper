@@ -33,13 +33,14 @@ static uint8_t _n_steppers;
  * \param[in] configs Array of sequential configurations of stepper GPIO pins.
  * \returns Pointer to a stepper object. Unsafe, btw.
  */
-Stepper_Handle_t *Stepper_Init(const uint32_t *gpios, const uint8_t *config_1ph, const uint8_t *config_2ph, \
+Stepper_Handle_t *Stepper_Init(TIM_TypeDef *inst, const uint32_t *gpios, const uint8_t *config_1ph, const uint8_t *config_2ph, \
     const uint8_t *config_half) {
     if (_n_steppers >= MAX_STEPPERS) return NULL;
     
     Stepper_Handle_t *stp = &_stepper_pool[_n_steppers++];
     stp->gpios = gpios;
     stp->config = config_1ph;
+    stp->instance = inst;
 
     stp->config_1ph = config_1ph;
     stp->config_2ph = config_2ph;
@@ -157,10 +158,10 @@ Stepper_Status_t Stepper_Rotate_IT(Stepper_Handle_t *stp, uint32_t steps, uint8_
     stp->steps_left = steps;
     stp->direc = dir;
 
-    TIM2->PSC = PCLK1_FREQ / 1000 - 1;
-    TIM2->ARR = del - 1;
-    TIM2->EGR |= TIM_EGR_UG;
-    TIM2->CR1 |= TIM_CR1_CEN;
+    stp->instance->PSC = PCLK1_FREQ / 1000 - 1;
+    stp->instance->ARR = del - 1;
+    stp->instance->EGR |= TIM_EGR_UG;
+    stp->instance->CR1 |= TIM_CR1_CEN;
     return STEPPER_OK;
 }
 
