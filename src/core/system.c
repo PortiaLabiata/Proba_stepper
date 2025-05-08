@@ -19,18 +19,8 @@ uint32_t _pclk1_freq = 0;
  * \returns Frequency in hertz.
  */
 static uint32_t Get_SYSCLK_Freq(void) {
-    uint32_t pmul;
-    switch (RCC->CFGR & (3UL << RCC_CFGR_SWS_Pos)) {
-        case RCC_CFGR_SWS_HSI:
-            return HSI_FREQ;
-        case RCC_CFGR_SWS_HSE:
-            return HSE_FREQ;
-        case RCC_CFGR_SWS_PLL:
-            pmul = (RCC->CFGR >> RCC_CFGR_PLLMULL_Pos) & 0b1111;
-            return (pmul + 2)*HSI_FREQ/2;
-        default:
-            return 0; // Something went horribly wrong
-    }
+    SystemCoreClockUpdate();
+    return SystemCoreClock;
 }
 
 /**
@@ -214,6 +204,17 @@ void TIM2_Config(void) {
     TIM2->CR1 &= ~(TIM_CR1_CKD_Msk);
     NVIC_SetPriority(TIM2_IRQn, 0);
     NVIC_EnableIRQ(TIM2_IRQn);
+}
+
+/**
+ * \brief Low-level configuration of TIM3.
+ */
+void TIM3_Config(void) {
+    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; // Enable clocking
+    TIM3->DIER |= TIM_DIER_UIE; // Enable update event interrupt
+    TIM3->CR1 &= ~(TIM_CR1_CKD_Msk);
+    NVIC_SetPriority(TIM3_IRQn, 0);
+    NVIC_EnableIRQ(TIM3_IRQn);
 }
 
 void ADC_Config(void) {

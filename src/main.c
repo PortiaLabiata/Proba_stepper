@@ -8,11 +8,21 @@
 #include "mb.h"
 #include "port.h"
 
-#define REG_INPUT_START 1000
-#define REG_INPUT_NREGS 4
+//#include "app/modbus.h"
 
-static USHORT   usRegInputStart = REG_INPUT_START;
-static USHORT   usRegInputBuf[REG_INPUT_NREGS];
+#define REG_INPUT_START     1
+#define REG_INPUT_NREGS     1
+#define REG_HOLDING_START   1
+#define REG_HOLDING_NREGS   2
+#define COIL_START          1
+#define COIL_NCOILS         3
+#define DISCR_START         1
+#define DISCR_NDISCR        1
+
+static USHORT usRegInputBuf[REG_INPUT_NREGS];
+static USHORT usRegHoldingBuf[REG_HOLDING_NREGS];
+static USHORT usCoilBuf[COIL_NCOILS];
+static USHORT usDiscrBuf[DISCR_NDISCR];
 
 const uint8_t wave[4] = {
     0b1000,
@@ -34,8 +44,8 @@ volatile uint8_t buffer[10];
 int main(void) {
     Clock_Config();
     GPIO_Config();
-    UART_Config();
     TIM2_Config();
+    TIM3_Config();
 
 #ifdef STARTUP_BLINK_ENABLE
     STARTUP_BLINK();
@@ -54,34 +64,32 @@ int main(void) {
     eStatus = eMBInit(MB_RTU, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
     eStatus = eMBEnable();
     
-    UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
+    //UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_2PHASE);
     Stepper_Rotate_IT(ctx.stepper_handle, 10, CLOCKWISE, 10);
 
     while (1) {
         (void)eMBPoll();
-
         IWDG_RELOAD();
     }
 
 }
 
-eMBErrorCode
-eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
-{
+static eMBErrorCode eMBGenericRead(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNRegs, \
+     USHORT usStart, USHORT usNumber, USHORT *usDataBuffer) {
     eMBErrorCode    eStatus = MB_ENOERR;
-    int             iRegIndex;
+    int             iRegIndex = 0;
 
-    if( ( usAddress >= REG_INPUT_START )
-        && ( usAddress + usNRegs <= REG_INPUT_START + REG_INPUT_NREGS ) )
+    if( ( usAddress >= usStart )
+        && ( usAddress + usNRegs <= usStart + usNumber ) )
     {
-        iRegIndex = ( int )( usAddress - usRegInputStart );
+        iRegIndex = ( int )( usAddress - usStart );
         while( usNRegs > 0 )
         {
             *pucRegBuffer++ =
-                ( unsigned char )( usRegInputBuf[iRegIndex] >> 8 );
+                ( unsigned char )( usDataBuffer[iRegIndex] >> 8 );
             *pucRegBuffer++ =
-                ( unsigned char )( usRegInputBuf[iRegIndex] & 0xFF );
+                ( unsigned char )( usDataBuffer[iRegIndex] & 0xFF );
             iRegIndex++;
             usNRegs--;
         }
@@ -94,11 +102,44 @@ eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
     return eStatus;
 }
 
+static eMBErrorCode eMBGenericWriteReg(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNRegs, \
+    USHORT usStart, USHORT usNumber, USHORT *usDataBuffer) {
+    eMBErrorCode eStatus = MB_ENOERR;
+
+    if ((usAddress >= usStart) && (usAddress + usNRegs <= usStart + usNumber)) {
+        int iRegIndex = (int)(usAddress - usStart);
+        for (USHORT iIndex = 0; iIndex < usNRegs; ) {
+            USHORT usRegValue = pucRegBuffer[iIndex++] << 8;
+            usRegValue += pucRegBuffer[iIndex++] & 0xFF;
+            usDataBuffer[iRegIndex++] = usRegValue;
+        }
+    } else {
+        eStatus = MB_ENOREG;
+    }
+    return eStatus;
+}
+
+eMBErrorCode
+eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
+{
+    eMBErrorCode eStatus = eMBGenericRead(pucRegBuffer, usAddress, usNRegs, \
+        REG_INPUT_START, REG_INPUT_NREGS, usRegInputBuf);
+    return eStatus;
+}
+
 eMBErrorCode
 eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs,
                  eMBRegisterMode eMode )
 {
-    return MB_ENOREG;
+    eMBErrorCode eStatus = MB_ENOERR;
+    if (eMode == MB_REG_READ) {
+        eStatus = eMBGenericRead(pucRegBuffer, usAddress, usNRegs, \
+            REG_HOLDING_START, REG_HOLDING_NREGS, usRegHoldingBuf);
+    } else if (eMode == MB_REG_WRITE) {
+        eMBGenericWriteReg(pucRegBuffer, usAddress, usNRegs, \
+            REG_HOLDING_START, REG_HOLDING_NREGS, usRegHoldingBuf);
+    }
+    return eStatus;
 }
 
 
@@ -106,11 +147,21 @@ eMBErrorCode
 eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCoils,
                eMBRegisterMode eMode )
 {
-    return MB_ENOREG;
+    eMBErrorCode eStatus = MB_ENOERR;
+    if (eMode == MB_REG_READ) {
+        eStatus = eMBGenericRead(pucRegBuffer, usAddress, usNCoils, \
+            COIL_START, COIL_NCOILS, usCoilBuf);
+    } else if (eMode == MB_REG_WRITE) {
+        eStatus = eMBGenericWriteReg(pucRegBuffer, usAddress, usNCoils, \
+            COIL_START, COIL_NCOILS, usCoilBuf);
+    }
+    return eStatus;
 }
 
 eMBErrorCode
 eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
 {
-    return MB_ENOREG;
+    eMBErrorCode eStatus = eMBGenericRead(pucRegBuffer, usAddress, usNDiscrete, \
+        DISCR_START, DISCR_NDISCR, usDiscrBuf);
+    return eStatus;
 }
