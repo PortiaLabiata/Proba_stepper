@@ -14,11 +14,13 @@ class Vernier(QWidget):
 
     font = None
 
-    def __init__(self, name: str, font: QFont):
+    def __init__(self, name: str, font: QFont, init_value=None):
         super().__init__()
         self.name = name
         self.font = font
         self.setFixedSize(100, 200)
+        if init_value is not None:
+            self.value = init_value
 
         self.dial = QDial()
         self.dial.setRange(0, 255)
@@ -142,7 +144,7 @@ class ControlApp(QMainWindow):
         self.container = QWidget()
 
         self.steps_vernier = Vernier("Steps", self.font)
-        self.delay_vernier = Vernier("Delay, ms", self.font)
+        self.delay_vernier = Vernier("Delay, ms", self.font, 10)
 
         self.panel = CommandPanel(["Forward!", "Reverse!", "Halt!"], 
             [self.forward, self.reverse, self.halt], self.font)

@@ -130,7 +130,7 @@ uint32_t Get_TIM_Div(TIM_TypeDef *tim) {
 /**
  * \brief Low-level configuration of RCC.
  */
-void ClockConfig(void) {
+void Clock_Config(void) {
     RCC->CR |= RCC_CR_HSION_Msk; // Starting HSI
     while (!(RCC->CR & RCC_CR_HSIRDY_Msk)) 
         __NOP();
@@ -214,6 +214,10 @@ void TIM2_Config(void) {
     TIM2->CR1 &= ~(TIM_CR1_CKD_Msk);
     NVIC_SetPriority(TIM2_IRQn, 0);
     NVIC_EnableIRQ(TIM2_IRQn);
+}
+
+void ADC_Config(void) {
+    
 }
 
 #ifdef USE_IWDG

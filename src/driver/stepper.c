@@ -90,6 +90,7 @@ Stepper_Status_t Stepper_SetMode(Stepper_Handle_t *stp, Stepper_Mode_t mode) {
 Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir) {
     uint8_t curr_config = stp->config[stp->config_idx];
     GPIOB->ODR &= ~(stp->gpios[0] | stp->gpios[1] | stp->gpios[2] | stp->gpios[3]);
+    int n_entries = sizeof(stp->config) / sizeof(char);
 
     if (curr_config & 0b0001) GPIOB->ODR |= stp->gpios[3];
     if (curr_config & 0b0010) GPIOB->ODR |= stp->gpios[2];
@@ -97,9 +98,9 @@ Stepper_Status_t Stepper_Step(Stepper_Handle_t *stp, uint8_t dir) {
     if (curr_config & 0b1000) GPIOB->ODR |= stp->gpios[0];
 
     if (dir == CLOCKWISE) {
-        stp->config_idx = (stp->config_idx + 1) % N_PINS;
+        stp->config_idx = (stp->config_idx + 1) % n_entries;
     } else if (dir == COUNTERCLOCKWISE) {
-        stp->config_idx = (stp->config_idx - 1 + N_PINS) % N_PINS;
+        stp->config_idx = (stp->config_idx - 1 + n_entries) % n_entries;
     } else {
         return STEPPER_ERROR_SOFT; // In case something went horribly wrong.
     }
