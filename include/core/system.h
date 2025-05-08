@@ -13,6 +13,7 @@
 #define HSE_FREQ         16000000 // I don't have it, may vary
 
 #define UART_BAUD_RATE   115200
+#define MB_BAUD_RATE     9600
 #define MAX_UARTS        (uint8_t)2
 #define FORW_CMD         (uint8_t)1
 #define REV_CMD          (uint8_t)2
@@ -52,7 +53,7 @@ uint32_t Get_CurrentTick(void);
 
 uint32_t Get_TIM_Div(TIM_TypeDef *tim);
 
-void ClockConfig(void);
+void Clock_Config(void);
 void GPIO_Config(void);
 void UART_Config(void);
 void TIM2_Config(void);

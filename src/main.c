@@ -5,6 +5,15 @@
 #include "driver/stepper.h"
 #include "driver/iwdg.h"
 
+#include "mb.h"
+#include "port.h"
+
+#define REG_INPUT_START 1000
+#define REG_INPUT_NREGS 4
+
+static USHORT   usRegInputStart = REG_INPUT_START;
+static USHORT   usRegInputBuf[REG_INPUT_NREGS];
+
 const uint8_t wave[4] = {
     0b1000,
     0b0010,
@@ -23,7 +32,7 @@ const uint32_t gpios[4] = {GPIO_ODR_ODR6, GPIO_ODR_ODR7, GPIO_ODR_ODR8, GPIO_ODR
 volatile uint8_t buffer[10];
 
 int main(void) {
-    ClockConfig();
+    Clock_Config();
     GPIO_Config();
     UART_Config();
     TIM2_Config();
@@ -39,46 +48,69 @@ int main(void) {
 
     ctx.stepper_handle = stp;
     ctx.uart_handle = hnd;
+
+    eMBErrorCode eStatus; // For later
+
+    eStatus = eMBInit(MB_RTU, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
+    eStatus = eMBEnable();
     
-    UART_Recieve(hnd, buffer, 3);
     UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_2PHASE);
     Stepper_Rotate_IT(ctx.stepper_handle, 10, CLOCKWISE, 10);
 
     while (1) {
-        if (UART_GetCmdRdy(hnd)) {
-            LOG("Command recieved\n");
-            uint8_t response[1] = {ERR_RESP};
-            if (ProcessCommand(stp, buffer, hnd) == SET) {
-                response[0] = ACK_RESP;  
-            }
-            UART_Transmit(hnd, response, 1, MAX_TIMEOUT);
-        }
-        //delay(7000);
+        (void)eMBPoll();
+
         IWDG_RELOAD();
     }
 
 }
 
-/**
- * \todo Add error handling.
- */
-uint8_t ProcessCommand(Stepper_Handle_t *stp, volatile uint8_t *cmd, UART_Handle_t *handle) {
-    UART_Recieve(handle, buffer, 3);
-    UART_SetCmdRdy(handle, RESET);
-    int steps = *(cmd + 1);
-    int speed = *(cmd + 2);
-    switch (cmd[0]) {
-        case FORW_CMD:
-            Stepper_Rotate_IT(stp, steps, CLOCKWISE, speed);
-            return SET;
-        case REV_CMD:
-            Stepper_Rotate_IT(stp, steps, COUNTERCLOCKWISE, speed);
-            return SET;
-        case HALT_CMD:
-            Stepper_Halt_IT(stp, RESET);
-            return SET;
-        default:
-            return RESET;
+eMBErrorCode
+eMBRegInputCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs )
+{
+    eMBErrorCode    eStatus = MB_ENOERR;
+    int             iRegIndex;
+
+    if( ( usAddress >= REG_INPUT_START )
+        && ( usAddress + usNRegs <= REG_INPUT_START + REG_INPUT_NREGS ) )
+    {
+        iRegIndex = ( int )( usAddress - usRegInputStart );
+        while( usNRegs > 0 )
+        {
+            *pucRegBuffer++ =
+                ( unsigned char )( usRegInputBuf[iRegIndex] >> 8 );
+            *pucRegBuffer++ =
+                ( unsigned char )( usRegInputBuf[iRegIndex] & 0xFF );
+            iRegIndex++;
+            usNRegs--;
+        }
     }
+    else
+    {
+        eStatus = MB_ENOREG;
+    }
+
+    return eStatus;
+}
+
+eMBErrorCode
+eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs,
+                 eMBRegisterMode eMode )
+{
+    return MB_ENOREG;
+}
+
+
+eMBErrorCode
+eMBRegCoilsCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNCoils,
+               eMBRegisterMode eMode )
+{
+    return MB_ENOREG;
+}
+
+eMBErrorCode
+eMBRegDiscreteCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNDiscrete )
+{
+    return MB_ENOREG;
 }
