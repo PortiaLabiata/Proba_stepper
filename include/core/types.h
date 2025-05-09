@@ -51,13 +51,16 @@ typedef enum {
 
 typedef enum {
     SYS_OK,
-    SYS_ERROR
+    SYS_ERROR,
+    SYS_ERROR_NULLPTR,
+    SYS_ERROR_ILLVALUE
 } System_Status_t;
 
 typedef enum {
     CMD_NOCMD,
     CMD_ROTATE,
-    CMD_HALT
+    CMD_HALT,
+    CMD_INVALID
 } Command_t;
 
 typedef enum {
@@ -69,3 +72,7 @@ typedef enum {
 /* System context */
 
 extern System_Context_t ctx;
+
+/* Prototypes */
+
+System_Status_t Context_Init(System_Context_t *ctx, UART_Handle_t *uart, Stepper_Handle_t *stp);
