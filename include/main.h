@@ -20,11 +20,6 @@
 typedef struct UART_Handle UART_Handle_t;
 typedef struct Stepper_Handle Stepper_Handle_t;
 
-/* UART configuration constants */
-
-#define CMD_BUFFER_SIZE 2
-#define STEPPER_DIVIDER 960
-
 /* Global definitions */
 
 extern UART_Handle_t *hnd;

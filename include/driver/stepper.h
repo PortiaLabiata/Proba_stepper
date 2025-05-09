@@ -12,8 +12,6 @@ typedef enum {
 
 /* Constants */
 
-#define CLOCKWISE (uint8_t)0
-#define COUNTERCLOCKWISE (uint8_t)1
 #define N_PINS (uint8_t)4
 #define MAX_STEPPERS 2
 
