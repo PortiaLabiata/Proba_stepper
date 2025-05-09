@@ -85,6 +85,8 @@ static System_Status_t eSystemPoll(void) {
         case CMD_NOCMD:
             return SYS_OK;
         case CMD_ROTATE:
+            Stepper_SetMode(ctx.stepper_handle, \
+                (Stepper_Mode_t)((usRegHoldingBuf[INDEX_HOLD_MODE] & 0xFF00) >> 8));
             Stepper_Rotate_IT(ctx.stepper_handle, usRegHoldingBuf[INDEX_HOLD_STEPS], \
              usRegHoldingBuf[INDEX_HOLD_MODE] & 0xFF, usRegHoldingBuf[INDEX_HOLD_SPEED]);
             break;
