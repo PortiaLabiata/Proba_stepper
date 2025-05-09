@@ -97,24 +97,6 @@ static uint32_t Get_PCLK1_Freq(void) {
     }
 }
 
-/**
- * \brief Gets current TIM DTS frequency.
- * \param[in] tim Timer structure.
- * \returns Frequency, Hz.
- */
-uint32_t Get_TIM_Div(TIM_TypeDef *tim) {
-    const uint32_t fclk = (tim == TIM1) ? PCLK2_FREQ : PCLK1_FREQ;
-    switch (tim->CR1 & TIM_CR1_CKD_Msk) {
-        case 0:
-            return fclk;
-        case TIM_CR1_CKD_0:
-            return fclk * 2;
-        case TIM_CR1_CKD_1:
-            return fclk * 4;
-        default:
-            return 0;
-    }
-}
 /* Configuration functions */
 
 /**

@@ -8,8 +8,6 @@
 #include "mb.h"
 #include "port.h"
 
-//#include "app/modbus.h"
-
 #define REG_INPUT_START     1
 #define REG_INPUT_NREGS     1
 #define REG_HOLDING_START   1
@@ -83,14 +81,19 @@ int main(void) {
 static System_Status_t eSystemPoll(void) {
     switch ((Command_t)usRegHoldingBuf[INDEX_HOLD_CMD]) {
         case CMD_NOCMD:
+
             return SYS_OK;
+
         case CMD_ROTATE:
+            if (usRegHoldingBuf[INDEX_HOLD_SPEED] < 10 || usRegHoldingBuf[INDEX_HOLD_SPEED] > 10)
             Stepper_SetMode(ctx.stepper_handle, \
                 (Stepper_Mode_t)((usRegHoldingBuf[INDEX_HOLD_MODE] & 0xFF00) >> 8));
             Stepper_Rotate_IT(ctx.stepper_handle, usRegHoldingBuf[INDEX_HOLD_STEPS], \
              usRegHoldingBuf[INDEX_HOLD_MODE] & 0xFF, usRegHoldingBuf[INDEX_HOLD_SPEED]);
             break;
+
         case CMD_HALT:
+
             Stepper_Halt_IT(ctx.stepper_handle, RESET);
             break;
     }

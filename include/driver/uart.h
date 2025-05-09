@@ -3,6 +3,8 @@
 #include "core/types.h"
 #include "utils/service.h"
 
+#define MAX_UARTS   3UL
+
 /* Typedefs */
 
 typedef struct UART_Handle UART_Handle_t;
