@@ -13,9 +13,9 @@
 #define REG_INPUT_START     1
 #define REG_INPUT_NREGS     1
 #define REG_HOLDING_START   1
-#define REG_HOLDING_NREGS   2
+#define REG_HOLDING_NREGS   4
 #define COIL_START          1
-#define COIL_NCOILS         3
+#define COIL_NCOILS         1
 #define DISCR_START         1
 #define DISCR_NDISCR        1
 
@@ -23,6 +23,8 @@ static USHORT usRegInputBuf[REG_INPUT_NREGS];
 static USHORT usRegHoldingBuf[REG_HOLDING_NREGS];
 static USHORT usCoilBuf[COIL_NCOILS];
 static USHORT usDiscrBuf[DISCR_NDISCR];
+
+static System_Status_t eSystemPoll(void);
 
 const uint8_t wave[4] = {
     0b1000,
@@ -64,15 +66,34 @@ int main(void) {
     eStatus = eMBInit(MB_RTU, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
     eStatus = eMBEnable();
     
-    //UART_Transmit(hnd, (uint8_t*)"rdy\n", strlen("rdy\n"), MAX_TIMEOUT);
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_2PHASE);
     Stepper_Rotate_IT(ctx.stepper_handle, 10, CLOCKWISE, 10);
 
     while (1) {
         (void)eMBPoll();
+        (void)eSystemPoll();
         IWDG_RELOAD();
     }
 
+}
+
+/**
+ * \todo Add error handling.
+ */
+static System_Status_t eSystemPoll(void) {
+    switch ((Command_t)usRegHoldingBuf[INDEX_HOLD_CMD]) {
+        case CMD_NOCMD:
+            return SYS_OK;
+        case CMD_ROTATE:
+            Stepper_Rotate_IT(ctx.stepper_handle, usRegHoldingBuf[INDEX_HOLD_STEPS], \
+             usRegHoldingBuf[INDEX_HOLD_MODE] & 0xFF, usRegHoldingBuf[INDEX_HOLD_SPEED]);
+            break;
+        case CMD_HALT:
+            Stepper_Halt_IT(ctx.stepper_handle, RESET);
+            break;
+    }
+    usRegHoldingBuf[INDEX_HOLD_CMD] = 0;
+    return SYS_OK;
 }
 
 static eMBErrorCode eMBGenericRead(UCHAR *pucRegBuffer, USHORT usAddress, USHORT usNRegs, \
@@ -108,7 +129,7 @@ static eMBErrorCode eMBGenericWriteReg(UCHAR *pucRegBuffer, USHORT usAddress, US
 
     if ((usAddress >= usStart) && (usAddress + usNRegs <= usStart + usNumber)) {
         int iRegIndex = (int)(usAddress - usStart);
-        for (USHORT iIndex = 0; iIndex < usNRegs; ) {
+        for (USHORT iIndex = 0; iRegIndex < usAddress - usStart + usNRegs; ) {
             USHORT usRegValue = pucRegBuffer[iIndex++] << 8;
             usRegValue += pucRegBuffer[iIndex++] & 0xFF;
             usDataBuffer[iRegIndex++] = usRegValue;
@@ -131,12 +152,13 @@ eMBErrorCode
 eMBRegHoldingCB( UCHAR * pucRegBuffer, USHORT usAddress, USHORT usNRegs,
                  eMBRegisterMode eMode )
 {
+    /* First we have to make sure, that we reply */
     eMBErrorCode eStatus = MB_ENOERR;
     if (eMode == MB_REG_READ) {
         eStatus = eMBGenericRead(pucRegBuffer, usAddress, usNRegs, \
             REG_HOLDING_START, REG_HOLDING_NREGS, usRegHoldingBuf);
     } else if (eMode == MB_REG_WRITE) {
-        eMBGenericWriteReg(pucRegBuffer, usAddress, usNRegs, \
+        eStatus = eMBGenericWriteReg(pucRegBuffer, usAddress, usNRegs, \
             REG_HOLDING_START, REG_HOLDING_NREGS, usRegHoldingBuf);
     }
     return eStatus;
