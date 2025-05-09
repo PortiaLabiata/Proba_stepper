@@ -18,9 +18,6 @@
 
 #define INDEX_INP_ERRC  0
 
-#define STP_MODE_FULL1  0
-#define STP_MODE_FULL2  1
-#define STP_MODE_HALF   2
 #define STP_DIR_CLOCK   CLOCKWISE
 #define STP_DIR_CCLOCK  COUNTERCLOCKWISE
 
@@ -39,6 +36,8 @@ typedef struct {
     UART_Handle_t *uart_handle;
     Stepper_Handle_t *stepper_handle;
 } System_Context_t;
+
+typedef struct MB_Proxy MB_Proxy_t;
 
 typedef enum {
     STEPPER_OK,
@@ -60,6 +59,12 @@ typedef enum {
     CMD_ROTATE,
     CMD_HALT
 } Command_t;
+
+typedef enum {
+    STEPPER_MODE_FULLSTEP_1PHASE,
+    STEPPER_MODE_FULLSTEP_2PHASE,
+    STEPPER_MODE_HALFSTEP
+} Stepper_Mode_t;
 
 /* System context */
 

@@ -2,14 +2,6 @@
 #include "core/types.h"
 #include "utils/service.h"
 
-/* Typedefs */
-
-typedef enum {
-    STEPPER_MODE_FULLSTEP_1PHASE,
-    STEPPER_MODE_FULLSTEP_2PHASE,
-    STEPPER_MODE_HALFSTEP
-} Stepper_Mode_t;
-
 /* Constants */
 
 #define N_PINS (uint8_t)4
