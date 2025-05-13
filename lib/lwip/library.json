@@ -8,7 +8,7 @@
     "includeDir": "include",
     "srcDir": "src",
     "build": {
-        "flags": "-Iport",
+        "flags": "-Isrc/port",
         "unflags": "-Wcomment"
     }
 }  
