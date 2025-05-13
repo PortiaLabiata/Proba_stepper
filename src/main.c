@@ -46,13 +46,13 @@ int main(void) {
     Context_Init(&ctx, hnd, stp);
 
     eMBErrorCode eStatus; // For later
-    eStatus = eMBInit(MB_RTU, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
+    eStatus = eMBInit(MB_TCP, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
     eStatus = eMBEnable();
     
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_1PHASE);
 
     while (1) {
-        (void)eMBPoll();
+        //(void)eMBPoll();
         (void)eSystemPoll(proxy);
         IWDG_RELOAD();
     }
