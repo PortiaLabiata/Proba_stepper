@@ -1,16 +1,6 @@
 #include "utils/service.h"
 
 /**
- * \brief Turns character into decimal number in the dumbest way possible.
- * \param[in] c Character.
- * \returns Number.
- */
-int atoi(char *c) {
-    if (*c < '0' || *c > '9') return -1;
-    return (int)(*c - '0');
-}
-
-/**
  * \brief Busy-waiting loop for delays, based on SysTick ticks.
  * \param[in] ms Delay duration in ms.
  */
@@ -27,16 +17,6 @@ void delay(uint32_t ms) {
  */
 uint32_t Get_CurrentTick(void) {
     return _current_ticks;
-}
-
-/**
- * \brief Turns a digit into a character for printing.
- * \param[in] digit Digit to be turned into a character.
- * \returns The character.
- */
-char itoa(char digit) {
-    if (digit < 0 || digit > 9) return -1;
-    return (char)('0' + digit);
 }
 
 

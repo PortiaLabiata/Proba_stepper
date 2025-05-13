@@ -1,0 +1,14 @@
+{
+    "name": "lwip",
+    "version": "1.0.0",
+    "description": "Port of lwIP library",
+    "keywords": "IP, TCP, port, lwIP",
+    "frameworks": "*",
+    "platforms": "*",
+    "includeDir": "include",
+    "srcDir": "src",
+    "build": {
+        "flags": "-Iport",
+        "unflags": "-Wcomment"
+    }
+}  
