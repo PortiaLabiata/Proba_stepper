@@ -6,10 +6,10 @@
 #include "driver/iwdg.h"
 #include "app/mb_logic.h"
 
-#include "mb.h"
+/* #include "mb.h"
 #include "port.h"
 
-static System_Status_t eSystemPoll(MB_Proxy_t *proxy);
+static System_Status_t eSystemPoll(MB_Proxy_t *proxy); */
 
 const uint8_t wave[4] = {
     0b1000,
@@ -42,18 +42,18 @@ int main(void) {
 
     Stepper_Handle_t *stp = Stepper_Init(TIM2, gpios, wave, NULL, NULL);
     UART_Handle_t *hnd = UART_Init(USART1);
-    MB_Proxy_t *proxy = MB_Proxy_Init();
+    //MB_Proxy_t *proxy = MB_Proxy_Init();
     Context_Init(&ctx, hnd, stp);
 
-    eMBErrorCode eStatus; // For later
+    /* eMBErrorCode eStatus; // For later
     eStatus = eMBInit(MB_TCP, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
-    eStatus = eMBEnable();
+    eStatus = eMBEnable(); */
     
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_1PHASE);
 
     while (1) {
         //(void)eMBPoll();
-        (void)eSystemPoll(proxy);
+        //(void)eSystemPoll(proxy);
         IWDG_RELOAD();
     }
 
@@ -62,7 +62,7 @@ int main(void) {
 /**
  * \todo Add error handling.
  */
-static System_Status_t eSystemPoll(MB_Proxy_t *proxy) {
+/* static System_Status_t eSystemPoll(MB_Proxy_t *proxy) {
     MB_Proxy_Unmarshall(proxy);
     System_Status_t status = SYS_OK;
     uint32_t speed = 0;
@@ -98,4 +98,4 @@ static System_Status_t eSystemPoll(MB_Proxy_t *proxy) {
     MB_Proxy_SetCmd(proxy, CMD_NOCMD);
     MB_Proxy_Marshall(proxy);
     return status;
-} 
+}  */

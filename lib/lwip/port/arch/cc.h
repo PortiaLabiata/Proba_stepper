@@ -33,8 +33,6 @@ typedef uint32_t sys_prot_t;
 
 #define LWIP_RAND()  ((uint32_t)rand())
 #define LWIP_PLATFORM_DIAG(x)   ITM_Print(x, strlen(x))
-//#define LWIP_PLATFORM_ASSERT(x) do {ITM_Print(x, strlen(x));\
-//    abort();} while(0)
 #define LWIP_NOASSERT
 #define LWIP_UNUSED_ARG(x) (void)x
 
