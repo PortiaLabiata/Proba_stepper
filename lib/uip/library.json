@@ -1,0 +1,17 @@
+{
+    "name": "uIP",
+    "version": "1.0.0",
+    "description": "Port of uIP library",
+    "keywords": "TCP, IP, ICMP, uIP, port",
+    "frameworks": "*",
+    "platforms": "*",
+    "srcDir": "uip",
+    "includeDir": "uip",
+    "build": {
+        "unflags": "-Wcomment",
+        "flags": [
+            "-Iuip/port",
+            "-Iuip/lib"
+        ]
+    }
+}  

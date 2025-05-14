@@ -7,7 +7,6 @@
 
 #include "app/mb_logic.h"
 #include "app/net.h"
-#include "lwip/tcp.h"
 
 /* #include "mb.h"
 #include "port.h"
@@ -47,7 +46,6 @@ int main(void) {
     UART_Handle_t *hnd = UART_Init(USART1);
     //MB_Proxy_t *proxy = MB_Proxy_Init();
     Context_Init(&ctx, hnd, stp);
-    net_init();
     /* eMBErrorCode eStatus; // For later
     eStatus = eMBInit(MB_TCP, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
     eStatus = eMBEnable(); */

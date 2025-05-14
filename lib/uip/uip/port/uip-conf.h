@@ -55,7 +55,8 @@
 #ifndef __UIP_CONF_H__
 #define __UIP_CONF_H__
 
-#include <inttypes.h>
+//#include <inttypes.h>
+#include <stm32f103x6.h>
 
 /**
  * 8 bit datatype
@@ -146,7 +147,7 @@ typedef unsigned short uip_stats_t;
 /*#include "smtp.h"*/
 /*#include "hello-world.h"*/
 /*#include "telnetd.h"*/
-#include "webserver.h"
+//#include "webserver.h"
 /*#include "dhcpc.h"*/
 /*#include "resolv.h"*/
 /*#include "webclient.h"*/
