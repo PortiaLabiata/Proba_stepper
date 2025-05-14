@@ -6,12 +6,13 @@
     "frameworks": "*",
     "platforms": "*",
     "srcDir": "uip",
-    "includeDir": "uip",
+    "includeDir": ".",
     "build": {
         "unflags": "-Wcomment",
         "flags": [
-            "-Iuip/port",
-            "-Iuip/lib"
+            "-I uip/port",
+            "-I uip/lib",
+            "-I uip"
         ]
     }
 }  
