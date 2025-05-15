@@ -1,6 +1,8 @@
 #pragma once
 #include "uip.h"
 #include "clock-arch.h"
+#include "timer.h"
+#include "uip_arp.h"
 #include "utils/service.h"
 
 enum Net_err {
@@ -11,4 +13,3 @@ enum Net_err {
 typedef enum Net_err Net_err_t;
 
 int net_init(void);
-int app_poll(void);
