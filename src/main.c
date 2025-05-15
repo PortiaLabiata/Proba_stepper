@@ -5,13 +5,13 @@
 #include "driver/stepper.h"
 #include "driver/iwdg.h"
 
-//#include "app/mb_logic.h"
+#include "app/mb_logic.h"
 #include "app/net.h"
 
-/* #include "mb.h"
+#include "mb.h"
 #include "port.h"
 
-static System_Status_t eSystemPoll(MB_Proxy_t *proxy); */
+//static System_Status_t eSystemPoll(MB_Proxy_t *proxy); 
 
 const uint8_t wave[4] = {
     0b1000,
@@ -49,12 +49,14 @@ int main(void) {
     /* eMBErrorCode eStatus; // For later
     eStatus = eMBInit(MB_TCP, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
     eStatus = eMBEnable(); */
-    
+    eMBTCPInit(502);
+    eMBEnable();
     
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_1PHASE);
+    net_init();
 
     while (1) {
-        //(void)eMBPoll();
+        (void)eMBPoll();
         //(void)eSystemPoll(proxy);
         IWDG_RELOAD();
     }

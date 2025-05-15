@@ -69,6 +69,11 @@ typedef enum {
     STEPPER_MODE_HALFSTEP
 } Stepper_Mode_t;
 
+typedef enum {
+    SPI_OK,
+    SPI_ERR
+} SPI_Status_t;
+
 /* System context */
 
 extern System_Context_t ctx;

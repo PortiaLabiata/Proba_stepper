@@ -1,10 +1,10 @@
 #pragma once
 #include <stm32f103x6.h>
-#define UIP_APPCALL() app_poll()
+#define UIP_APPCALL() uip_modbus_appcall()
 
 /* Forward declarations */
 
-extern int app_poll(void);
+extern void uip_modbus_appcall(void);
 
 /* uIP declarations */
 
