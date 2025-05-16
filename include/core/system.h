@@ -43,3 +43,4 @@ void UART_Config(void);
 void TIM2_Config(void);
 void TIM3_Config(void);
 void IWDG_Config(void);
+void SPI_Config(void);
