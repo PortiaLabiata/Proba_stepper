@@ -199,8 +199,29 @@ void TIM3_Config(void) {
     NVIC_EnableIRQ(TIM3_IRQn);
 }
 
-void ADC_Config(void) {
-    
+/**
+ * \brief Low-level configuration of SPI.
+ */
+void SPI_Config(void) {
+    RCC->APB2ENR |= (RCC_APB2ENR_IOPAEN | RCC_APB2ENR_SPI1EN);
+    GPIOA->CRL &= ~(GPIO_CRL_CNF4_Msk | GPIO_CRL_CNF5_Msk | GPIO_CRL_CNF6_Msk | GPIO_CRL_CNF7_Msk);
+    /*
+        PA4 -> SS   -> PP
+        PA5 -> SCK  -> AF PP
+        PA6 -> MISO -> Input floating
+        PA7 -> MOSI -> AF PP
+    */
+    GPIOA->CRL |= (GPIO_CRL_CNF5_1 | GPIO_CRL_CNF7_1 | GPIO_CRL_CNF6_0);
+    GPIOA->CRL |= (GPIO_CRL_MODE4_0 | GPIO_CRL_MODE5_0 | GPIO_CRL_MODE7_0);
+    GPIOA->CRL &= ~GPIO_CRL_MODE6_Msk;
+
+    /* SPI configuration */
+    SPI1->CR1 |= SPI_CR1_BR_2; // Set BR to PCLK2/16=3MHz
+    SPI1->CR1 |= SPI_CR1_SSM;  // Disable hardware NSS management
+    //SPI1->CR1 |= SPI_CR1_DFF;  // Enable 16-bit mode, I think I need it for this chip
+    SPI1->CR1 |= SPI_CR1_SSI;  // Set NSS to HIGH
+    SPI1->CR1 |= SPI_CR1_MSTR; // Set to master mode
+    SPI1->CR1 |= SPI_CR1_SPE;  // Enable the SPI
 }
 
 #ifdef USE_IWDG

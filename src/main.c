@@ -4,6 +4,7 @@
 #include "driver/uart.h"
 #include "driver/stepper.h"
 #include "driver/iwdg.h"
+#include "driver/spi.h"
 
 #include "app/mb_logic.h"
 #include "app/net.h"
@@ -35,7 +36,8 @@ int main(void) {
     GPIO_Config();
     TIM2_Config();
     TIM3_Config();
-
+    SPI_Config();
+    
 #ifdef STARTUP_BLINK_ENABLE
     STARTUP_BLINK();
 #endif
@@ -49,18 +51,22 @@ int main(void) {
     /* eMBErrorCode eStatus; // For later
     eStatus = eMBInit(MB_TCP, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
     eStatus = eMBEnable(); */
-    eMBTCPInit(502);
+    /* eMBTCPInit(502);
     eMBEnable();
     
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_1PHASE);
-    net_init();
+    net_init(); */
+    uint8_t data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
 
     while (1) {
-        (void)eMBPoll();
+        //(void)eMBPoll();
         //(void)eSystemPoll(proxy);
+        GPIOA->BSRR |= GPIO_BSRR_BR4;
+        SPI_SendData(data, 4);
+        GPIOA->BSRR |= GPIO_BSRR_BS4;
+        delay(10);
         IWDG_RELOAD();
     }
-
 }
 
 /**
