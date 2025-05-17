@@ -174,6 +174,21 @@ SPI_Status_t ENC_Init(void) {
     return SPI_OK;
 }
 
-SPI_Status_t ENC_SendPacket(uint8_t *data, uint32_t size) {
+SPI_Status_t ENC_SendPacket(uint8_t *dst_addr, uint8_t *type_len, uint8_t *data, uint32_t size) {
+    ENC_WriteBufferMemory(ETH_TX_BUFFER_START, 0x00, 1); // Write per packet config byte
+
+    uint8_t header[ETH_HEAD_SIZE];
+    uint8_t my_mac[6] = {ETH_MAC1, ETH_MAC2, ETH_MAC3, ETH_MAC4, ETH_MAC5, ETH_MAC6};
+    memcpy(header, dst_addr, ETH_MAC_LEN);
+    memcpy(header + ETH_MAC_LEN, my_mac, ETH_MAC_LEN);
+    memcpy(header + 2*ETH_MAC_LEN, type_len, 2);
+
+    ENC_WriteBufferMemory(ETH_TX_BUFFER_START + 1, header, ETH_HEAD_SIZE);
+    ENC_WriteBufferMemory(ETH_TX_BUFFER_START + ETH_HEAD_SIZE + 1, data, size);
+
+    uint16_t ptr = ETH_TX_BUFFER_START + ETH_HEAD_SIZE + size;
+    ENC_WriteReg(ETXNDL, ptr & 0xFF);
+    ENC_WriteReg(ETXNDH, ptr >> 8);
+    ENC_BitSet(ECON1, ECON1_TXRTS);
     return SPI_OK;
 }
