@@ -216,7 +216,7 @@ void SPI_Config(void) {
     GPIOA->CRL &= ~GPIO_CRL_MODE6_Msk;
 
     /* SPI configuration */
-    SPI1->CR1 |= SPI_CR1_BR_2; // Set BR to PCLK2/16=3MHz
+    SPI1->CR1 |= (SPI_CR1_BR_2); // Set BR to PCLK2/16=3MHz
     SPI1->CR1 |= SPI_CR1_SSM;  // Disable hardware NSS management
     //SPI1->CR1 |= SPI_CR1_DFF;  // Enable 16-bit mode, I think I need it for this chip
     SPI1->CR1 |= SPI_CR1_SSI;  // Set NSS to HIGH
