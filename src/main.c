@@ -5,6 +5,7 @@
 #include "driver/stepper.h"
 #include "driver/iwdg.h"
 #include "driver/spi.h"
+#include "driver/enc28j60.h"
 
 #include "app/mb_logic.h"
 #include "app/net.h"
@@ -56,14 +57,14 @@ int main(void) {
     
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_1PHASE);
     net_init(); */
-    uint8_t data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
+    uint8_t value = 0;
 
+    //uint8_t data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
     while (1) {
         //(void)eMBPoll();
         //(void)eSystemPoll(proxy);
-        GPIOA->BSRR |= GPIO_BSRR_BR4;
-        SPI_SendData(data, 4);
-        GPIOA->BSRR |= GPIO_BSRR_BS4;
+        ENC_WriteReg(ERXNDL, 0xDE);
+        ENC_ReadReg(ERXNDL, &value);
         delay(10);
         IWDG_RELOAD();
     }
