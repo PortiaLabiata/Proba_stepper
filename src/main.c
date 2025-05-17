@@ -39,7 +39,7 @@ int main(void) {
     TIM3_Config();
     SPI_Config();
     
-#ifdef STARTUP_BLINK_ENABLE
+#if STARTUP_BLINK_ENABLE==1
     STARTUP_BLINK();
 #endif
 
@@ -57,13 +57,13 @@ int main(void) {
     
     Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_1PHASE);
     net_init(); */
-    uint8_t value = 0;
 
-    //uint8_t data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
+    uint8_t data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
+    uint8_t rx_buffer[4];
     while (1) {
-        //(void)eMBPoll();
-        //(void)eSystemPoll(proxy);
         ENC_Init();
+        ENC_WriteBufferMemory(0x0000, data, 4);
+        ENC_ReadBufferMemory(0x0000, rx_buffer, 4);
         delay(10);
         IWDG_RELOAD();
     }
