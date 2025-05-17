@@ -63,8 +63,7 @@ int main(void) {
     while (1) {
         //(void)eMBPoll();
         //(void)eSystemPoll(proxy);
-        ENC_WriteReg(ERXNDL, 0xDE);
-        ENC_ReadReg(ERXNDL, &value);
+        ENC_Init();
         delay(10);
         IWDG_RELOAD();
     }
