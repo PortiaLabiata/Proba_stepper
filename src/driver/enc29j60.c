@@ -134,7 +134,6 @@ SPI_Status_t ENC_Init(void) {
     ENC_WriteReg(ETXNDL, (ETH_TX_BUFFER_START + ETH_TX_BUFFER_SIZE) & 0xFF);
     ENC_WriteReg(ETXNDL, (ETH_TX_BUFFER_START + ETH_TX_BUFFER_SIZE) >> 8); // 2KByte buffer
 
-    ENC_BitSet(ECON1, ECON1_RXEN);
     ENC_BitSet(ECON2, ECON2_AUTOINC);
 
     ENC_SEL_BANK2();
@@ -171,6 +170,8 @@ SPI_Status_t ENC_Init(void) {
 #else
     ENC_WritePhyReg(PHCON2, PHCON2_HDLDIS); // Disable loopback
 #endif
+
+    ENC_BitSet(ECON1, ECON1_RXEN); // RX enable
     return SPI_OK;
 }
 
@@ -192,3 +193,5 @@ SPI_Status_t ENC_SendPacket(uint8_t *dst_addr, uint8_t *type_len, uint8_t *data,
     ENC_BitSet(ECON1, ECON1_TXRTS);
     return SPI_OK;
 }
+
+SPI_Status_t ENC_RecievePacket
