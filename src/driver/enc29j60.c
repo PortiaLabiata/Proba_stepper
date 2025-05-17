@@ -43,6 +43,23 @@ SPI_Status_t ENC_SoftReset(void) {
     SPI_START_OP();
     SPI_Transfer(ENC_OP_SRC, &dummy);
     SPI_STOP_OP();
+    return SPI_OK;
+}
+
+SPI_Status_t ENC_WritePhyReg(uint8_t address, uint8_t value) {
+    SPI_START_OP();
+    ENC_SEL_BANK2();
+    ENC_WriteReg(MIREGADR, address);
+    ENC_WriteReg(MIWRL, value & 0xFF);
+    ENC_WriteReg(MIWRH, value >> 8);
+
+    ENC_SEL_BANK3();
+    uint8_t rx_buffer = 0;
+    ENC_ReadReg(MISTAT, &rx_buffer);
+    while (!(rx_buffer & MISTAT_BUSY)) {
+        ENC_ReadReg(MISTAT, &rx_buffer);
+    }
+    SPI_STOP_OP();
 }
 
 SPI_Status_t ENC_PendClkrdy(void) {
@@ -66,11 +83,32 @@ SPI_Status_t ENC_Init(void) {
     ENC_WriteReg(ERXNDH, (RX_BUFFER_START + RX_BUFFER_SIZE) >> 8); // 6KByte buffer
 
     ENC_SEL_BANK2();
+    ENC_BitSet(ERXFCON, ERXFCON_BCEN | ERXFCON_CRCEN | ERXFCON_UCEN);
+
+    ENC_SEL_BANK2();
     ENC_BitSet(MACON1, MACON1_MARXEN);
     // Full-duplex or not?
 #ifdef ETH_FULL_DPX
     ENC_BitSet(MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN | MACON3_FULDPX);
+    ENC_WriteReg(MABBIPG, 0x15);
 #else
     ENC_BitSet(MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
+    ENC_WriteReg(MABBIPG, 0x12);
+    ENC_WriteReg(MAIPGH, 0x0C);
 #endif
+    ENC_BitSet(MACON4, MACON4_DEFER);
+    ENC_WriteReg(MAMXFLL, ETH_MAX_FRAME_LEN & 0xFF);
+    ENC_WriteReg(MAMXFLH, ETH_MAX_FRAME_LEN >> 8);
+    ENC_WriteReg(MAIPGL, 0x15);
+
+    ENC_SEL_BANK3();
+    ENC_WriteReg(MAADR1, MAC1);
+    ENC_WriteReg(MAADR2, MAC2);
+    ENC_WriteReg(MAADR3, MAC3);
+    ENC_WriteReg(MAADR4, MAC4);
+    ENC_WriteReg(MAADR5, MAC5);
+    ENC_WriteReg(MAADR6, MAC6);
+
+    //ENC_WritePhyReg()
+    return SPI_OK;
 }
