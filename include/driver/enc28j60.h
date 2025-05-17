@@ -29,9 +29,18 @@
 #define ERXSTH  0x09
 #define ERXNDL  0x0A
 #define ERXNDH  0x0B
+#define ETXSTL  0x04
+#define ETXSTH  0x05
+#define ETXNDL  0x06
+#define ETXNDH  0x07
 #define ESTAT   0x1D
 #define ECON1   0x1F
+#define ECON2   0x1E
 #define ERXFCON 0x18
+#define ERDPTL  0x00
+#define ERDPTH  0x01
+#define EWRPTL  0x02
+#define EWRPTH  0x03
 
 /* MAC Registers */ 
 #define MACON1  0x00
@@ -41,14 +50,15 @@
 #define MAMXFLH 0x0B
 #define MABBIPG 0x04
 #define MAIPGL  0x06
+#define MAIPGH  0x07
 
 /* MAC address registers */
-#define MAADR5 0x00
-#define MAADR6 0x01
-#define MAADR3 0x02
-#define MAADR4 0x03
-#define MAADR1 0x04
-#define MAADR2 0x05
+#define MAADR5  0x00
+#define MAADR6  0x01
+#define MAADR3  0x02
+#define MAADR4  0x03
+#define MAADR1  0x04
+#define MAADR2  0x05
 
 /* PHY control registers */
 #define MIREGADR 0x14
@@ -58,36 +68,46 @@
 
 /* PHY registers */
 
+#define PHCON1   0x00
+#define PHCON2   0x10
+
 /* Operations */
 
 #define ENC_OP_RCR (uint8_t)0
 #define ENC_OP_RBM (uint8_t)1
 #define ENC_OP_WCR (uint8_t)2
 #define ENC_OP_WBM (uint8_t)3
-#define ENC_OP_BFS (uint8_t)4
-#define ENC_OP_BFC (uint8_t)5
+#define ENC_OP_BFS (uint8_t)0b100
+#define ENC_OP_BFC (uint8_t)0b101
 #define ENC_OP_SRC (uint8_t)0xFF
+#define ENC_OP_BM_SUFF (uint8_t)0x1A
 
 /* Bitmasks */
 
-#define ESTAT_CLKRDY_Msk (uint8_t)1
-#define ECON1_BSEL0      (uint8_t)1
-#define ECON1_BSEL1      (uint8_t)2
-#define MACON1_MARXEN    (uint8_t)1
+#define ESTAT_CLKRDY_Msk (uint8_t)(1 << 0)
+#define ECON1_BSEL0      (uint8_t)(1 << 0)
+#define ECON1_BSEL1      (uint8_t)(1 << 1)
+#define ECON1_RXEN       (uint8_t)(1 << 2)
+#define ECON2_AUTOINC    (uint8_t)(1 << 7)
+#define MACON1_MARXEN    (uint8_t)(1 << 0)
+#define MACON1_TXPAUS    (uint8_t)(1 << 3)
+#define MACON1_RXPAUS    (uint8_t)(1 << 2)
 
-#define MACON3_TXCRCEN   (uint8_t)0b00010000
-#define MACON3_FULDPX    (uint8_t)0b00000001
-#define MACON3_FRMLNEN   (uint8_t)0b00000010
-#define MACON3_PADCFG0   (uint8_t)0b00100000
-#define MACON3_PADCFG1   (uint8_t)0b01000000
-#define MACON3_PADCFG2   (uint8_t)0b10000000
+#define MACON3_TXCRCEN   (uint8_t)(1 << 4)
+#define MACON3_FULDPX    (uint8_t)(1 << 0)
+#define MACON3_FRMLNEN   (uint8_t)(1 << 1)
+#define MACON3_PADCFG0   (uint8_t)(1 << 5)
+#define MACON3_PADCFG1   (uint8_t)(1 << 6)
+#define MACON3_PADCFG2   (uint8_t)(1 << 7)
 
-#define ERXFCON_UCEN     (uint8_t)0b10000000
-#define ERXFCON_CRCEN    (uint8_t)0b00100000
-#define ERXFCON_BCEN     (uint8_t)0b00000001
+#define ERXFCON_UCEN     (uint8_t)(1 << 7)
+#define ERXFCON_CRCEN    (uint8_t)(1 << 5)
+#define ERXFCON_BCEN     (uint8_t)(1 << 0)
 
-#define MACON4_DEFER     (uint8_t)0b01000000
-#define MISTAT_BUSY      (uint8_t)0b00000001
+#define MACON4_DEFER     (uint8_t)(1 << 6)
+#define MISTAT_BUSY      (uint8_t)(1 << 0)
+#define PHCON2_HDLDIS    (uint16_t)(1 << 8)
+#define PHCON1_PDPXMD    (uint16_t)(1 << 8)
 
 /* Low-level IO */
 
@@ -96,7 +116,10 @@ SPI_Status_t ENC_WriteReg(uint8_t address, uint8_t value);
 SPI_Status_t ENC_BitSet(uint8_t address, uint8_t mask);
 SPI_Status_t ENC_BitClear(uint8_t address, uint8_t mask);
 SPI_Status_t ENC_SoftReset(void);
-SPI_Status_t ENC_WritePhyReg(uint8_t address, uint8_t value);
+SPI_Status_t ENC_WritePhyReg(uint8_t address, uint16_t value);
+SPI_Status_t ENC_ReadMacMIIReg(uint8_t address, uint8_t *value);
+SPI_Status_t ENC_WriteBufferMemory(uint16_t address, uint8_t *data, uint32_t size);
+SPI_Status_t ENC_ReadBufferMemory(uint16_t address, uint8_t *data, uint32_t size);
 
 /* Control */
 

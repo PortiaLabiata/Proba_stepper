@@ -7,6 +7,7 @@
 
 #define SPI_START_OP() GPIOA->BSRR |= GPIO_BSRR_BR4;
 #define SPI_STOP_OP() GPIOA->BSRR |= GPIO_BSRR_BS4;
+#define SPI_WAIT_ON_BSY() while (!(SPI1->SR & SPI_SR_BSY_Msk)) {}
 
 /* Prototypes */
 
