@@ -5,6 +5,12 @@
 #include "driver/spi.h"
 #include "utils/service.h"
 
+/* Constants */
+
+#define ETH_MAC_LEN     6
+#define ETH_TYPELEN_LEN 2
+#define ETH_HEAD_SIZE   2*ETH_MAC_LEN + ETH_TYPELEN_LEN
+
 /* Macros */
 
 #define ENC_SEL_BANK0() do { \
@@ -85,10 +91,14 @@
 /* Bitmasks */
 
 #define ESTAT_CLKRDY_Msk (uint8_t)(1 << 0)
+
 #define ECON1_BSEL0      (uint8_t)(1 << 0)
 #define ECON1_BSEL1      (uint8_t)(1 << 1)
 #define ECON1_RXEN       (uint8_t)(1 << 2)
+#define ECON1_TXRTS      (uint8_t)(1 << 3)
+
 #define ECON2_AUTOINC    (uint8_t)(1 << 7)
+
 #define MACON1_MARXEN    (uint8_t)(1 << 0)
 #define MACON1_TXPAUS    (uint8_t)(1 << 3)
 #define MACON1_RXPAUS    (uint8_t)(1 << 2)
@@ -125,3 +135,4 @@ SPI_Status_t ENC_ReadBufferMemory(uint16_t address, uint8_t *data, uint32_t size
 
 SPI_Status_t ENC_PendClkrdy(void);
 SPI_Status_t ENC_Init(void);
+SPI_Status_t ENC_SendPacket(uint8_t *dst_addr, uint8_t *type_len, uint8_t *data, uint32_t size);

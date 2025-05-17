@@ -59,12 +59,13 @@ int main(void) {
     net_init(); */
 
     uint8_t data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
-    uint8_t rx_buffer[4];
+    uint8_t dst_mac[6] = {0x00, 0xe0, 0x99, 0x00, 0x09, 0x85};
+    uint8_t type_len[2] = {0x00, 0x04};
+    ENC_Init();
     while (1) {
-        ENC_Init();
-        ENC_WriteBufferMemory(0x0000, data, 4);
-        ENC_ReadBufferMemory(0x0000, rx_buffer, 4);
-        delay(10);
+        
+        ENC_SendPacket(dst_mac, type_len, data, 4);
+        delay(500);
         IWDG_RELOAD();
     }
 }
