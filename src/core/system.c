@@ -140,6 +140,7 @@ void Clock_Config(void) {
  */
 void GPIO_Config(void) {
     RCC->APB2ENR |= RCC_APB2ENR_IOPCEN_Msk; // Enable GPIOC clocking
+    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
     GPIOC->CRH |= (GPIO_MODE_OUTPUT << GPIO_CRH_MODE13_Pos); // Set mode to 2MHz
     GPIOC->CRH &= ~(GPIO_OUTPUT_PP << GPIO_CRH_CNF13_Pos); // Set mode to output PP
 
@@ -150,6 +151,15 @@ void GPIO_Config(void) {
 
     GPIOB->CRL |= (GPIO_CRL_MODE6_1 | GPIO_CRL_MODE7_1);
     GPIOB->CRH |= (GPIO_CRH_MODE8_1 | GPIO_CRH_MODE9_1);
+
+    GPIOB->CRL &= ~(GPIO_CRL_CNF3_Msk | GPIO_CRL_MODE3_Msk);
+    GPIOB->CRL |= GPIO_CRL_CNF3_0;
+
+    AFIO->EXTICR[0] |= AFIO_EXTICR1_EXTI3_PB;
+    EXTI->IMR |= EXTI_IMR_IM3;
+    EXTI->FTSR |= EXTI_FTSR_FT3;
+    NVIC_SetPriority(EXTI3_IRQn, 0);
+    NVIC_EnableIRQ(EXTI3_IRQn);
 }
 
 /**
