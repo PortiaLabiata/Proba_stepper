@@ -11,6 +11,8 @@
 #define ETH_TYPELEN_LEN 2
 #define ETH_HEAD_SIZE   2*ETH_MAC_LEN + ETH_TYPELEN_LEN
 
+#define ETH_RX_VEC_LEN  6
+
 /* Macros */
 
 #define ENC_SEL_BANK0() do { \
@@ -49,6 +51,7 @@
 #define EWRPTH  0x03
 #define EIE     0x1B
 #define EIR     0x1C
+#define EPKTCNT 0x19
 
 /* MAC Registers */ 
 #define MACON1  0x00
@@ -97,6 +100,7 @@
 #define EIE_PKTIE        (uint8_t)(1 << 6)
 #define EIE_INTIE        (uint8_t)(1 << 7)
 #define EIR_TXERIF       (uint8_t)(1 << 1)
+#define EIR_PKTIF        (uint8_t)(1 << 6)
 
 #define ECON1_BSEL0      (uint8_t)(1 << 0)
 #define ECON1_BSEL1      (uint8_t)(1 << 1)
@@ -104,6 +108,7 @@
 #define ECON1_TXRTS      (uint8_t)(1 << 3)
 
 #define ECON2_AUTOINC    (uint8_t)(1 << 7)
+#define ECON2_PKTDEC     (uint8_t)(1 << 6)
 
 #define MACON1_MARXEN    (uint8_t)(1 << 0)
 #define MACON1_TXPAUS    (uint8_t)(1 << 3)
@@ -142,3 +147,4 @@ SPI_Status_t ENC_ReadBufferMemory(uint16_t address, uint8_t *data, uint32_t size
 SPI_Status_t ENC_PendClkrdy(void);
 SPI_Status_t ENC_Init(void);
 SPI_Status_t ENC_SendPacket(uint8_t *dst_addr, uint8_t *type_len, uint8_t *data, uint32_t size);
+uint32_t ENC_RecievePacket(uint8_t data[]);

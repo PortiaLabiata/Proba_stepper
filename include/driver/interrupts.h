@@ -13,3 +13,4 @@ void SysTick_Handler(void);
 void USART1_IRQHandler(void);
 void TIM2_IRQHandler(void);
 void EXTI3_IRQHandler(void);
+void HardFault_Handler(void);
