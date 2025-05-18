@@ -2,6 +2,7 @@
 
 // Dummy variable
 static uint8_t dummy = 0;
+static uint32_t _next_packet_ptr = ETH_RX_BUFFER_START;
 
 /* Basic IO */
 
@@ -92,8 +93,8 @@ SPI_Status_t ENC_WriteBufferMemory(uint16_t address, uint8_t *data, uint32_t siz
 }
 
 SPI_Status_t ENC_ReadBufferMemory(uint16_t address, uint8_t *data, uint32_t size) {
-    SPI_START_OP();
     /* Set memory address to read */
+    ENC_SEL_BANK0();
     ENC_WriteReg(ERDPTL, address & 0xFF);
     ENC_WriteReg(ERDPTH, address >> 8);
     SPI_START_OP();
@@ -136,7 +137,7 @@ SPI_Status_t ENC_Init(void) {
     ENC_WriteReg(ETXNDL, (ETH_TX_BUFFER_START + ETH_TX_BUFFER_SIZE) >> 8); // 2KByte buffer
     */
     ENC_BitSet(ECON2, ECON2_AUTOINC);
-    ENC_BitSet(EIE, EIE_INTIE | EIE_PKTIE);
+    //ENC_BitSet(EIE, EIE_INTIE | EIE_PKTIE);
 
     ENC_SEL_BANK2();
     /* Enable CRC, broadcast and unicast filters */
@@ -211,6 +212,20 @@ SPI_Status_t ENC_SendPacket(uint8_t *dst_addr, uint8_t *type_len, uint8_t *data,
     return SPI_OK;
 }
 
-SPI_Status_t ENC_RecievePacket(uint8_t *dst_addr, uint8_t *data, uint32_t size) {
-    
+uint32_t ENC_RecievePacket(uint8_t data[]) {
+    uint8_t status = 0;
+    ENC_SEL_BANK1();
+    ENC_ReadReg(EPKTCNT, &status);
+    if (status == 0) {
+        return 0;
+    }
+    uint8_t rx_vector[ETH_RX_VEC_LEN];
+    ENC_ReadBufferMemory(_next_packet_ptr, rx_vector, ETH_RX_VEC_LEN);
+    uint32_t size = 0;
+    size = (rx_vector[3] << 8) | rx_vector[2]; // Exclude CRC
+
+    ENC_ReadBufferMemory(_next_packet_ptr + ETH_RX_VEC_LEN + 1, data, size);
+    _next_packet_ptr = (rx_vector[1] << 8) | rx_vector[0];
+    ENC_BitSet(ECON2, ECON2_PKTDEC);
+    return size;
 }

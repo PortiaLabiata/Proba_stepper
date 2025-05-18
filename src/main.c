@@ -51,14 +51,20 @@ int main(void) {
     Context_Init(&ctx, hnd, stp);
     net_init();
 
-    uint8_t data[8] = {0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
+    uint8_t rx_buff[1514];
     uint8_t dst_mac[6] = {0x00, 0xe0, 0x99, 0x00, 0x09, 0x85};
-    uint8_t type_len[2] = {0x00, 0x08};
-    ENC_Init();
+    uint8_t type_len[2] = {0x00, 0x04};
+    uint32_t size = 0;
+    
     delay(2);
     while (1) {
-        ENC_SendPacket(dst_mac, type_len, data, 8);
-        delay(500);
+        size = ENC_RecievePacket(rx_buff);
+        if (size > 0) {
+            type_len[0] = size >> 8;
+            type_len[1] = size & 0xFF;
+            ENC_SendPacket(dst_mac, type_len, rx_buff + ETH_HEAD_SIZE - 1, size);
+            size = 0;
+        }
         IWDG_RELOAD();
     }
 }

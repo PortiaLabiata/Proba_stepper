@@ -71,7 +71,8 @@ typedef enum {
 
 typedef enum {
     SPI_OK,
-    SPI_ERR
+    SPI_ERR,
+    SPI_ERR_BUFF
 } SPI_Status_t;
 
 /* System context */
