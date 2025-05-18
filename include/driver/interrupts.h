@@ -12,3 +12,4 @@ uint8_t TIM_UEV_Callback(System_Context_t *ctx);
 void SysTick_Handler(void);
 void USART1_IRQHandler(void);
 void TIM2_IRQHandler(void);
+void EXTI3_IRQHandler(void);

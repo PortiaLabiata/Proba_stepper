@@ -5,6 +5,8 @@
 #include "uip_arp.h"
 #include "utils/service.h"
 
+#include "driver/enc28j60.h"
+
 enum Net_err {
     NET_ERR_OK,
     NET_ERR_PORT

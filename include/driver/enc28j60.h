@@ -47,6 +47,8 @@
 #define ERDPTH  0x01
 #define EWRPTL  0x02
 #define EWRPTH  0x03
+#define EIE     0x1B
+#define EIR     0x1C
 
 /* MAC Registers */ 
 #define MACON1  0x00
@@ -91,6 +93,10 @@
 /* Bitmasks */
 
 #define ESTAT_CLKRDY_Msk (uint8_t)(1 << 0)
+#define ESTAT_INT        (uint8_t)(1 << 7)
+#define EIE_PKTIE        (uint8_t)(1 << 6)
+#define EIE_INTIE        (uint8_t)(1 << 7)
+#define EIR_TXERIF       (uint8_t)(1 << 1)
 
 #define ECON1_BSEL0      (uint8_t)(1 << 0)
 #define ECON1_BSEL1      (uint8_t)(1 << 1)

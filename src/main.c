@@ -49,22 +49,15 @@ int main(void) {
     UART_Handle_t *hnd = UART_Init(USART1);
     //MB_Proxy_t *proxy = MB_Proxy_Init();
     Context_Init(&ctx, hnd, stp);
-    /* eMBErrorCode eStatus; // For later
-    eStatus = eMBInit(MB_TCP, 1, 0, MB_BAUD_RATE, MB_PAR_EVEN);
-    eStatus = eMBEnable(); */
-    /* eMBTCPInit(502);
-    eMBEnable();
-    
-    Stepper_SetMode(ctx.stepper_handle, STEPPER_MODE_FULLSTEP_1PHASE);
-    net_init(); */
+    net_init();
 
-    uint8_t data[4] = {0xDE, 0xAD, 0xBE, 0xEF};
+    uint8_t data[8] = {0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
     uint8_t dst_mac[6] = {0x00, 0xe0, 0x99, 0x00, 0x09, 0x85};
-    uint8_t type_len[2] = {0x00, 0x04};
+    uint8_t type_len[2] = {0x00, 0x08};
     ENC_Init();
+    delay(2);
     while (1) {
-        
-        ENC_SendPacket(dst_mac, type_len, data, 4);
+        ENC_SendPacket(dst_mac, type_len, data, 8);
         delay(500);
         IWDG_RELOAD();
     }

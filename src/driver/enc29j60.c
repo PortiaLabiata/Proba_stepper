@@ -76,7 +76,7 @@ SPI_Status_t ENC_ReadMacMIIReg(uint8_t address, uint8_t *value) {
 }
 
 SPI_Status_t ENC_WriteBufferMemory(uint16_t address, uint8_t *data, uint32_t size) {
-    SPI_START_OP();
+    //SPI_START_OP();
     /* Set memory address to write */
     ENC_SEL_BANK0();
     ENC_WriteReg(EWRPTL, address & 0xFF);
@@ -131,10 +131,12 @@ SPI_Status_t ENC_Init(void) {
 
     ENC_WriteReg(ETXSTL, ETH_TX_BUFFER_START & 0xFF);
     ENC_WriteReg(ETXSTH, ETH_TX_BUFFER_START >> 8);
+    /* 
     ENC_WriteReg(ETXNDL, (ETH_TX_BUFFER_START + ETH_TX_BUFFER_SIZE) & 0xFF);
     ENC_WriteReg(ETXNDL, (ETH_TX_BUFFER_START + ETH_TX_BUFFER_SIZE) >> 8); // 2KByte buffer
-
+    */
     ENC_BitSet(ECON2, ECON2_AUTOINC);
+    ENC_BitSet(EIE, EIE_INTIE | EIE_PKTIE);
 
     ENC_SEL_BANK2();
     /* Enable CRC, broadcast and unicast filters */
@@ -148,7 +150,8 @@ SPI_Status_t ENC_Init(void) {
     ENC_WriteReg(MABBIPG, 0x15);
 #else
     ENC_BitSet(MACON1, MACON1_MARXEN);
-    ENC_BitSet(MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
+    ENC_BitSet(MACON3, MACON3_PADCFG1 | MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
+    ENC_ReadMacMIIReg(MACON3, &dummy);
     ENC_WriteReg(MABBIPG, 0x12);
     ENC_WriteReg(MAIPGH, 0x0C);
 #endif
@@ -176,22 +179,38 @@ SPI_Status_t ENC_Init(void) {
 }
 
 SPI_Status_t ENC_SendPacket(uint8_t *dst_addr, uint8_t *type_len, uint8_t *data, uint32_t size) {
-    ENC_WriteBufferMemory(ETH_TX_BUFFER_START, 0x00, 1); // Write per packet config byte
+    ENC_BitSet(ECON1, ECON1_TXRTS);
+    ENC_BitClear(ECON1, ECON1_TXRTS);
 
-    uint8_t header[ETH_HEAD_SIZE];
-    uint8_t my_mac[6] = {ETH_MAC1, ETH_MAC2, ETH_MAC3, ETH_MAC4, ETH_MAC5, ETH_MAC6};
-    memcpy(header, dst_addr, ETH_MAC_LEN);
-    memcpy(header + ETH_MAC_LEN, my_mac, ETH_MAC_LEN);
-    memcpy(header + 2*ETH_MAC_LEN, type_len, 2);
+    uint8_t tx_buffer[ETH_HEAD_SIZE + size + 1];
+    uint8_t my_mac[ETH_MAC_LEN] = {ETH_MAC1, ETH_MAC2, ETH_MAC3, ETH_MAC4, ETH_MAC5, ETH_MAC6};
+    tx_buffer[0] = 0;
+    memcpy(tx_buffer + 1, dst_addr, ETH_MAC_LEN);
+    memcpy(tx_buffer + ETH_MAC_LEN + 1, my_mac, ETH_MAC_LEN);
+    memcpy(tx_buffer + 2*ETH_MAC_LEN + 1, type_len, 2);
+    memcpy(tx_buffer + 2*ETH_MAC_LEN + 3, data, size);
 
-    ENC_WriteBufferMemory(ETH_TX_BUFFER_START + 1, header, ETH_HEAD_SIZE);
-    ENC_WriteBufferMemory(ETH_TX_BUFFER_START + ETH_HEAD_SIZE + 1, data, size);
+    //ENC_WriteBufferMemory(ETH_TX_BUFFER_START + 1, header, ETH_HEAD_SIZE);
+    ENC_WriteBufferMemory(ETH_TX_BUFFER_START, tx_buffer, ETH_HEAD_SIZE + size + 1);
 
     uint16_t ptr = ETH_TX_BUFFER_START + ETH_HEAD_SIZE + size;
     ENC_WriteReg(ETXNDL, ptr & 0xFF);
     ENC_WriteReg(ETXNDH, ptr >> 8);
     ENC_BitSet(ECON1, ECON1_TXRTS);
+
+    uint8_t status = 0;
+    ENC_ReadReg(ECON1, &status);
+    while (status & ECON1_TXRTS) {
+        ENC_ReadReg(ECON1, &status);
+    }
+    ENC_ReadReg(EIR, &status);
+    if (status & EIR_TXERIF) {
+        //GPIOC->ODR ^= GPIO_ODR_ODR13;
+        return SPI_ERR;
+    }
     return SPI_OK;
 }
 
-SPI_Status_t ENC_RecievePacket
+SPI_Status_t ENC_RecievePacket(uint8_t *dst_addr, uint8_t *data, uint32_t size) {
+    
+}

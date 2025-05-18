@@ -6,13 +6,6 @@ clock_time(void)
   return Get_CurrentTick();
 }
 
-/**
- * \brief Here will be low-level initialization: ENC28J60, timers etc.
- */
-static int app_init(void) {
-    return 0;
-}
-
 int net_init(void) {
     struct uip_eth_addr mac = {
         {0x00, 0x01, 0x02, 0x03, 0x04, 0x00}
@@ -25,7 +18,7 @@ int net_init(void) {
 
     uip_init();
     uip_arp_init();
-    app_init();
+    ENC_Init();
 
     uip_setethaddr(mac);
 
