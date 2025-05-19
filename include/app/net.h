@@ -13,5 +13,8 @@ enum Net_err {
 };
 
 typedef enum Net_err Net_err_t;
+extern struct timer periodic_timer, arp_timer;
 
 int net_init(void);
+void test_appcall(void);
+void dev_send(void);

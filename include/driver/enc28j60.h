@@ -148,3 +148,4 @@ SPI_Status_t ENC_PendClkrdy(void);
 SPI_Status_t ENC_Init(void);
 SPI_Status_t ENC_SendPacket(uint8_t *dst_addr, uint8_t *type_len, uint8_t *data, uint32_t size);
 uint32_t ENC_RecievePacket(uint8_t data[]);
+SPI_Status_t ENC_SendPacketRaw(uint8_t *data, uint32_t size);

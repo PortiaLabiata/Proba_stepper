@@ -137,7 +137,7 @@ SPI_Status_t ENC_Init(void) {
     ENC_WriteReg(ETXNDL, (ETH_TX_BUFFER_START + ETH_TX_BUFFER_SIZE) >> 8); // 2KByte buffer
     */
     ENC_BitSet(ECON2, ECON2_AUTOINC);
-    //ENC_BitSet(EIE, EIE_INTIE | EIE_PKTIE);
+    ENC_WriteReg(EIE, EIE_INTIE | EIE_PKTIE);
 
     ENC_SEL_BANK2();
     /* Enable CRC, broadcast and unicast filters */
@@ -212,6 +212,33 @@ SPI_Status_t ENC_SendPacket(uint8_t *dst_addr, uint8_t *type_len, uint8_t *data,
     return SPI_OK;
 }
 
+SPI_Status_t ENC_SendPacketRaw(uint8_t *data, uint32_t size) {
+    //ENC_BitSet(ECON1, ECON1_TXRTS);
+    //ENC_BitClear(ECON1, ECON1_TXRTS);
+
+    //ENC_WriteBufferMemory(ETH_TX_BUFFER_START + 1, header, ETH_HEAD_SIZE);
+    uint8_t zero = 0x00;
+    ENC_WriteBufferMemory(ETH_TX_BUFFER_START, &zero, 1);
+    ENC_WriteBufferMemory(ETH_TX_BUFFER_START + 1, data, size);
+
+    uint16_t ptr = ETH_TX_BUFFER_START + size + 1;
+    ENC_WriteReg(ETXNDL, ptr & 0xFF);
+    ENC_WriteReg(ETXNDH, ptr >> 8);
+    ENC_BitSet(ECON1, ECON1_TXRTS);
+
+    uint8_t status = 0;
+    ENC_ReadReg(ECON1, &status);
+    while (status & ECON1_TXRTS) {
+        ENC_ReadReg(ECON1, &status);
+    }
+    ENC_ReadReg(EIR, &status);
+    if (status & EIR_TXERIF) {
+        //GPIOC->ODR ^= GPIO_ODR_ODR13;
+        return SPI_ERR;
+    }
+    return SPI_OK;
+}
+
 uint32_t ENC_RecievePacket(uint8_t data[]) {
     uint8_t status = 0;
     ENC_SEL_BANK1();
@@ -220,11 +247,12 @@ uint32_t ENC_RecievePacket(uint8_t data[]) {
         return 0;
     }
     uint8_t rx_vector[ETH_RX_VEC_LEN];
+    // Potential bug, if vector is right at the edge of the buffer
     ENC_ReadBufferMemory(_next_packet_ptr, rx_vector, ETH_RX_VEC_LEN);
     uint32_t size = 0;
     size = (rx_vector[3] << 8) | rx_vector[2]; // Exclude CRC
 
-    ENC_ReadBufferMemory(_next_packet_ptr + ETH_RX_VEC_LEN + 1, data, size);
+    ENC_ReadBufferMemory(_next_packet_ptr + ETH_RX_VEC_LEN, data, size);
     _next_packet_ptr = (rx_vector[1] << 8) | rx_vector[0];
     ENC_BitSet(ECON2, ECON2_PKTDEC);
     return size;

@@ -9,11 +9,14 @@
 
 #include "app/mb_logic.h"
 #include "app/net.h"
+#include "uip_arp.h"
 
 #include "mb.h"
 #include "port.h"
 
 //static System_Status_t eSystemPoll(MB_Proxy_t *proxy); 
+#define BUF ((struct uip_eth_hdr *)uip_buf)
+volatile uint8_t ppend = RESET;
 
 const uint8_t wave[4] = {
     0b1000,
@@ -51,19 +54,43 @@ int main(void) {
     Context_Init(&ctx, hnd, stp);
     net_init();
 
-    uint8_t rx_buff[1514];
-    uint8_t dst_mac[6] = {0x00, 0xe0, 0x99, 0x00, 0x09, 0x85};
-    uint8_t type_len[2] = {0x00, 0x04};
-    uint32_t size = 0;
-    
     delay(2);
     while (1) {
-        size = ENC_RecievePacket(rx_buff);
-        if (size > 0) {
-            type_len[0] = size >> 8;
-            type_len[1] = size & 0xFF;
-            ENC_SendPacket(dst_mac, type_len, rx_buff + ETH_HEAD_SIZE - 1, size);
-            size = 0;
+        /* if (ppend) {
+            uip_len = ENC_RecievePacket(uip_buf);
+            ppend = RESET;
+        } */
+        uip_len = ENC_RecievePacket(uip_buf);
+        if (uip_len > 0) {
+            if (BUF->type == HTONS(0x0800)) {
+                uip_arp_ipin();
+                uip_input();
+
+                if (uip_len > 0) {
+                    uip_arp_out();
+                    dev_send();
+                }
+
+            } else if (BUF->type == HTONS(UIP_ETHTYPE_ARP)) {
+                uip_arp_arpin();
+                if (uip_len > 0) {
+                    dev_send();
+                }
+
+            } else if (timer_expired(&periodic_timer)) {
+                for(int i = 0; i < UIP_CONNS; i++) {
+                    uip_periodic(i);
+                    if(uip_len > 0) {
+                      uip_arp_out();
+                      dev_send();
+                    }
+                }
+            }
+
+            if(timer_expired(&arp_timer)) {
+                timer_reset(&arp_timer);
+                uip_arp_timer();
+            }
         }
         IWDG_RELOAD();
     }

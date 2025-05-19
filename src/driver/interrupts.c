@@ -13,15 +13,20 @@ void TIM2_IRQHandler(void) {
     }
 }
 
-void EXTI3_IRQHandler(void) {
-    EXTI->PR |= EXTI_PR_PR3;
-    GPIOC->ODR ^= GPIO_ODR_ODR13;
+void EXTI15_10_IRQHandler(void) {
+    EXTI->PR = EXTI_PR_PIF14;
+//    NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
+//    ENC_BitClear(EIE, EIE_PKTIE);
+
+    //GPIOC->ODR ^= GPIO_ODR_ODR13;
     //ENC_ReadReg(ESTAT, &dummy);
-    ENC_BitClear(ESTAT, ESTAT_INT);
+    //ENC_BitClear(ESTAT, ESTAT_INT);
+//    ppend = SET;
 }
 
 void HardFault_Handler(void) {
     __disable_irq();
+    #pragma GCC push_opt ("O0")
     volatile struct {
         uint32_t r0;
         uint32_t r1;
@@ -42,6 +47,7 @@ void HardFault_Handler(void) {
       : [ptr] "=r" (stack_ptr)
     );
 
+    #pragma GCC pop_opt
     while (1) {
         GPIOC->BSRR |= GPIO_BSRR_BS13;
         for (int i = 0; i < 1000000; i++) __NOP();

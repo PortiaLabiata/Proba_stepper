@@ -283,7 +283,7 @@ uip_arp_arpin(void)
     return;
   }
   uip_len = 0;
-  
+
   switch(BUF->opcode) {
   case HTONS(ARP_REQUEST):
     /* ARP request. If it asked for our address, we send out a

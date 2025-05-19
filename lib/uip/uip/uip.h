@@ -1063,15 +1063,18 @@ struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport);
  *
  * \hideinitializer
  */
-#ifndef HTONS
+/* #ifndef HTONS
 #   if UIP_BYTE_ORDER == UIP_BIG_ENDIAN
 #      define HTONS(n) (n)
-#   else /* UIP_BYTE_ORDER == UIP_BIG_ENDIAN */
-#      define HTONS(n) (u16_t)((((u16_t) (n)) << 8) | (((u16_t) (n)) >> 8))
-#   endif /* UIP_BYTE_ORDER == UIP_BIG_ENDIAN */
-#else
+#   else /* UIP_BYTE_ORDER == UIP_BIG_ENDIAN */ 
+//#      define HTONS(n) (u16_t)((((u16_t) (n)) << 8) | (((u16_t) (n)) >> 8))
+
+#      define HTONS(n) __builtin_bswap16(n)
+/* #   endif /* UIP_BYTE_ORDER == UIP_BIG_ENDIAN */
+/* #else
 #error "HTONS already defined!"
-#endif /* HTONS */
+#endif  */
+/* HTONS */ 
 
 /**
  * Convert 16-bit quantity from host byte order to network byte order.
