@@ -13,15 +13,9 @@ void TIM2_IRQHandler(void) {
     }
 }
 
-void EXTI15_10_IRQHandler(void) {
-    EXTI->PR = EXTI_PR_PIF14;
-//    NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
-//    ENC_BitClear(EIE, EIE_PKTIE);
-
-    //GPIOC->ODR ^= GPIO_ODR_ODR13;
-    //ENC_ReadReg(ESTAT, &dummy);
-    //ENC_BitClear(ESTAT, ESTAT_INT);
-//    ppend = SET;
+void EXTI4_IRQHandler(void) {
+    EXTI->PR = EXTI_PR_PIF4;
+    ppend = SET;
 }
 
 void HardFault_Handler(void) {

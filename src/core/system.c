@@ -1,4 +1,5 @@
 #include "core/system.h"
+#include "utils/service.h"
 
 /* SysTick configuration */
 
@@ -140,11 +141,12 @@ void Clock_Config(void) {
  */
 void GPIO_Config(void) {
     RCC->APB2ENR |= RCC_APB2ENR_IOPCEN_Msk; // Enable GPIOC clocking
-    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+    //RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
     GPIOC->CRH |= (GPIO_MODE_OUTPUT << GPIO_CRH_MODE13_Pos); // Set mode to 2MHz
     GPIOC->CRH &= ~(GPIO_OUTPUT_PP << GPIO_CRH_CNF13_Pos); // Set mode to output PP
 
     RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+    delay(1);
 
     GPIOB->CRL &= ~(GPIO_CRL_CNF6_Msk | GPIO_CRL_CNF7_Msk);
     GPIOB->CRH &= ~(GPIO_CRH_CNF8_Msk | GPIO_CRH_CNF9_Msk);
@@ -152,15 +154,14 @@ void GPIO_Config(void) {
     GPIOB->CRL |= (GPIO_CRL_MODE6_1 | GPIO_CRL_MODE7_1);
     GPIOB->CRH |= (GPIO_CRH_MODE8_1 | GPIO_CRH_MODE9_1);
 
-    GPIOC->CRH &= ~(GPIO_CRH_CNF14_Msk | GPIO_CRH_MODE14_Msk);
-    GPIOC->CRH |= GPIO_CRH_CNF14_0;
-    GPIOC->BSRR |= GPIO_BSRR_BR14;
+    GPIOB->CRL &= ~(GPIO_CRL_CNF4_Msk | GPIO_CRL_MODE4_Msk);
+    GPIOB->CRL |= GPIO_CRL_CNF4_0;
 
-    AFIO->EXTICR[4] |= AFIO_EXTICR4_EXTI14_PC;
-    EXTI->IMR |= EXTI_IMR_IM14;
-    EXTI->FTSR |= EXTI_FTSR_FT14;
-    NVIC_SetPriority(EXTI15_10_IRQn, 1);
-    //NVIC_EnableIRQ(EXTI15_10_IRQn);
+    /* AFIO->EXTICR[1] |= AFIO_EXTICR2_EXTI4_PB;
+    EXTI->IMR |= EXTI_IMR_IM4;
+    EXTI->FTSR |= EXTI_FTSR_FT4;
+    NVIC_SetPriority(EXTI4_IRQn, 0);
+    NVIC_EnableIRQ(EXTI4_IRQn); */
 }
 
 /**
