@@ -6,7 +6,7 @@ dst_mac = b"\x00\x01\x02\x03\x04\x05"
 payload = b"HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello"
 payload += b'\x00' * (64 - len(payload))
 
-def send_eth(dst, src, type_len, payload, iface="enp3s0f4u2c2"):
+def send_eth(dst, src, type_len, payload, iface="enp3s0f3u2c2"):
     assert(len(src) == len(dst) == 6)
     assert(len(type_len) == 2)
     s = socket(AF_PACKET, SOCK_RAW)
