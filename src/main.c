@@ -54,13 +54,18 @@ int main(void) {
     Context_Init(&ctx, hnd, stp);
     net_init();
 
-    delay(2);
+    //delay(2);
     while (1) {
         /* if (ppend) {
             uip_len = ENC_RecievePacket(uip_buf);
             ppend = RESET;
         } */
-        uip_len = ENC_RecievePacket(uip_buf);
+        if (GPIOB->IDR & GPIO_IDR_IDR4_Msk) {
+            GPIOC->BSRR |= GPIO_BSRR_BR13;
+        } else {
+            uip_len = ENC_RecievePacket(uip_buf);
+            GPIOC->BSRR |= GPIO_BSRR_BS13;
+        }
         if (uip_len > 0) {
             if (BUF->type == HTONS(0x0800)) {
                 uip_arp_ipin();

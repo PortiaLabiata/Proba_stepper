@@ -254,6 +254,10 @@ uint32_t ENC_RecievePacket(uint8_t data[]) {
 
     ENC_ReadBufferMemory(_next_packet_ptr + ETH_RX_VEC_LEN, data, size);
     _next_packet_ptr = (rx_vector[1] << 8) | rx_vector[0];
+
+    ENC_WriteReg(ERXRDPTL, _next_packet_ptr & 0xFF);
+    ENC_WriteReg(ERXRDPTH, _next_packet_ptr >> 8);
+
     ENC_BitSet(ECON2, ECON2_PKTDEC);
     return size;
 }

@@ -52,6 +52,8 @@
 #define EIE     0x1B
 #define EIR     0x1C
 #define EPKTCNT 0x19
+#define ERXRDPTL 0x0C
+#define ERXRDPTH 0x0D
 
 /* MAC Registers */ 
 #define MACON1  0x00
