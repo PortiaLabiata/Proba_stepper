@@ -52,6 +52,9 @@ int main(void) {
     UART_Handle_t *hnd = UART_Init(USART1);
     //MB_Proxy_t *proxy = MB_Proxy_Init();
     Context_Init(&ctx, hnd, stp);
+    GPIOB->BSRR |= GPIO_BSRR_BR3;
+    delay(1);
+    GPIOB->BSRR |= GPIO_BSRR_BS3;
     net_init();
 
     while (1) {
@@ -62,7 +65,7 @@ int main(void) {
             GPIOC->BSRR |= GPIO_BSRR_BS13;
         }
         if (uip_len > 0) {
-            if (BUF->type == HTONS(UIP_ETHTYPE_IP)) {
+            if (BUF->type == HTONS(0x0800)) {
                 uip_arp_ipin();
                 uip_input();
 
