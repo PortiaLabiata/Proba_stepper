@@ -23,3 +23,7 @@
 #define ETH_MAC4    (uint8_t)0x03
 #define ETH_MAC5    (uint8_t)0x04
 #define ETH_MAC6    (uint8_t)0x05
+
+/* Modbus Preferences */
+
+#define MB_PORT 502

@@ -29,11 +29,15 @@ int net_init(void) {
     uip_setdraddr(ipaddr);
     uip_ipaddr(ipaddr, 255, 255, 255, 0);
     uip_setnetmask(ipaddr);
+
+    uip_listen(HTONS(MB_PORT));
     return (int)NET_ERR_OK;
 }
 
 void test_appcall(void) {
-  ;
+  if (uip_connected()) {
+    __NOP();
+  }
 }
 
 void dev_send(void) {
