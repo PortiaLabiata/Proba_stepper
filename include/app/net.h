@@ -7,6 +7,10 @@
 
 #include "driver/enc28j60.h"
 
+/* Macros */
+
+#define ETH_INT_STATE() (GPIOB->IDR & GPIO_IDR_IDR4_Msk)
+
 enum Net_err {
     NET_ERR_OK,
     NET_ERR_PORT

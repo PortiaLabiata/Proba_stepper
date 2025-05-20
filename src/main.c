@@ -54,20 +54,15 @@ int main(void) {
     Context_Init(&ctx, hnd, stp);
     net_init();
 
-    //delay(2);
     while (1) {
-        /* if (ppend) {
-            uip_len = ENC_RecievePacket(uip_buf);
-            ppend = RESET;
-        } */
-        if (GPIOB->IDR & GPIO_IDR_IDR4_Msk) {
+        if (ETH_INT_STATE()) {
             GPIOC->BSRR |= GPIO_BSRR_BR13;
         } else {
             uip_len = ENC_RecievePacket(uip_buf);
             GPIOC->BSRR |= GPIO_BSRR_BS13;
         }
         if (uip_len > 0) {
-            if (BUF->type == HTONS(0x0800)) {
+            if (BUF->type == HTONS(UIP_ETHTYPE_IP)) {
                 uip_arp_ipin();
                 uip_input();
 
