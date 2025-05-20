@@ -14,7 +14,7 @@ int net_init(void) {
     };
     uip_ipaddr_t ipaddr;
 
-    timer_set(&periodic_timer, CLOCK_SECOND / 2);
+    timer_set(&periodic_timer, CLOCK_SECOND / 10);
     timer_set(&arp_timer, CLOCK_SECOND * 180);
 
     uip_init();
