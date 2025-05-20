@@ -1,6 +1,6 @@
 #pragma once
 #include <stm32f103x6.h>
-#define UIP_APPCALL() uip_modbus_appcall()
+#define UIP_APPCALL() test_appcall()
 
 /* Forward declarations */
 

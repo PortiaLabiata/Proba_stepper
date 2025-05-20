@@ -15,7 +15,7 @@ int net_init(void) {
     uip_ipaddr_t ipaddr;
 
     timer_set(&periodic_timer, CLOCK_SECOND / 2);
-    timer_set(&arp_timer, CLOCK_SECOND * 10);
+    timer_set(&arp_timer, CLOCK_SECOND * 180);
 
     uip_init();
     uip_arp_init();
@@ -36,7 +36,7 @@ int net_init(void) {
 
 void test_appcall(void) {
   if (uip_connected()) {
-    __NOP();
+    uip_send("Hi", 1);
   }
 }
 
