@@ -50,22 +50,20 @@ int main(void) {
 
     Stepper_Handle_t *stp = Stepper_Init(TIM2, gpios, wave, NULL, NULL);
     UART_Handle_t *hnd = UART_Init(USART1);
-    //MB_Proxy_t *proxy = MB_Proxy_Init();
+    eMBTCPInit(MB_PORT);
+    eMBEnable();
+
+    MB_Proxy_t *proxy = MB_Proxy_Init();
     Context_Init(&ctx, hnd, stp);
-    GPIOB->BSRR |= GPIO_BSRR_BR3;
-    delay(1);
-    GPIOB->BSRR |= GPIO_BSRR_BS3;
     net_init();
 
     while (1) {
-        if (ETH_INT_STATE()) {
-            GPIOC->BSRR |= GPIO_BSRR_BR13;
-        } else {
+        eMBPoll();
+        if (!ETH_INT_STATE()) {
             uip_len = ENC_RecievePacket(uip_buf);
-            GPIOC->BSRR |= GPIO_BSRR_BS13;
         }
         if (uip_len > 0) {
-            if (BUF->type == HTONS(0x0800)) {
+            if (BUF->type == HTONS(UIP_ETHTYPE_IP)) {
                 uip_arp_ipin();
                 uip_input();
 
@@ -80,20 +78,21 @@ int main(void) {
                     dev_send();
                 }
 
-            } else if (timer_expired(&periodic_timer)) {
-                for(int i = 0; i < UIP_CONNS; i++) {
-                    uip_periodic(i);
-                    if(uip_len > 0) {
-                      uip_arp_out();
-                      dev_send();
-                    }
+            }
+        }
+        if (timer_expired(&periodic_timer)) {
+            for(int i = 0; i < UIP_CONNS; i++) {
+                uip_periodic(i);
+                if(uip_len > 0) {
+                  uip_arp_out();
+                  dev_send();
                 }
             }
+        }
 
-            if(timer_expired(&arp_timer)) {
-                timer_reset(&arp_timer);
-                uip_arp_timer();
-            }
+        if(timer_expired(&arp_timer)) {
+            timer_reset(&arp_timer);
+            uip_arp_timer();
         }
         IWDG_RELOAD();
     }

@@ -120,6 +120,9 @@ SPI_Status_t ENC_PendClkrdy(void) {
 }
 
 SPI_Status_t ENC_Init(void) {
+    GPIOB->BSRR |= GPIO_BSRR_BR3;
+    delay(1);
+    GPIOB->BSRR |= GPIO_BSRR_BS3;
     ENC_PendClkrdy(); // Wait for the oscillator to stabilize 
     ENC_SoftReset(); // Perform a software reset
 
