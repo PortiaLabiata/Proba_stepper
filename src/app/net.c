@@ -23,7 +23,7 @@ int net_init(void) {
 
     uip_setethaddr(mac);
 
-    uip_ipaddr(ipaddr, 192, 168, 31, 211);
+    uip_ipaddr(ipaddr, 192, 168, 31, 40);
     uip_sethostaddr(ipaddr);
     uip_ipaddr(ipaddr, 192, 168, 31, 1);
     uip_setdraddr(ipaddr);

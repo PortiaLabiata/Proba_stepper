@@ -27,4 +27,5 @@ void UART_SetCmdRdy(UART_Handle_t *handle, uint8_t status);
 void UART_SetRxLeft(UART_Handle_t *handle, uint8_t value);
 
 uint8_t UART_RecieveCallback(System_Context_t *ctx);
+UART_Status_t UART_TransmitCallback(UART_Handle_t *handle);
 

@@ -14,7 +14,7 @@
 #include "mb.h"
 #include "port.h"
 
-//static System_Status_t eSystemPoll(MB_Proxy_t *proxy); 
+static System_Status_t eSystemPoll(MB_Proxy_t *proxy); 
 #define BUF ((struct uip_eth_hdr *)uip_buf)
 volatile uint8_t ppend = RESET;
 
@@ -41,6 +41,7 @@ int main(void) {
     TIM2_Config();
     TIM3_Config();
     SPI_Config();
+    //LOG(strcat(__func__, "All on-chip peripherals initialized."));
     
 #if STARTUP_BLINK_ENABLE==1
     STARTUP_BLINK();
@@ -50,15 +51,18 @@ int main(void) {
 
     Stepper_Handle_t *stp = Stepper_Init(TIM2, gpios, wave, NULL, NULL);
     UART_Handle_t *hnd = UART_Init(USART1);
+    
     eMBTCPInit(MB_PORT);
     eMBEnable();
 
     MB_Proxy_t *proxy = MB_Proxy_Init();
     Context_Init(&ctx, hnd, stp);
     net_init();
+    //Stepper_SetMode(stp, STEPPER_MODE_FULLSTEP_1PHASE);
 
     while (1) {
         eMBPoll();
+        eSystemPoll(proxy);
         if (!ETH_INT_STATE()) {
             uip_len = ENC_RecievePacket(uip_buf);
         }
@@ -101,7 +105,7 @@ int main(void) {
 /**
  * \todo Add error handling.
  */
-/* static System_Status_t eSystemPoll(MB_Proxy_t *proxy) {
+static System_Status_t eSystemPoll(MB_Proxy_t *proxy) {
     MB_Proxy_Unmarshall(proxy);
     System_Status_t status = SYS_OK;
     uint32_t speed = 0;
@@ -137,4 +141,4 @@ int main(void) {
     MB_Proxy_SetCmd(proxy, CMD_NOCMD);
     MB_Proxy_Marshall(proxy);
     return status;
-}  */
+} 

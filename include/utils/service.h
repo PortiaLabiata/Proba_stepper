@@ -3,7 +3,7 @@
 
 /* Macros */
 
-#ifdef SW_LOGGING_ENABLE
+#if SW_LOGGING_ENABLE==1
     #define LOG(__MESSAGE__) ITM_Print(__MESSAGE__, strlen(__MESSAGE__))
 #else
     #define LOG(__MESSAGE__) UART_Transmit(ctx.uart_handle, __MESSAGE__, strlen(__MESSAGE__), MAX_TIMEOUT)

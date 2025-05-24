@@ -1,9 +1,9 @@
 #pragma once
 /* User configuration */
 
-//#define IWDG_ENABLE
+#define IWDG_ENABLE             0
 #define STARTUP_BLINK_ENABLE    1
-#define SW_LOGGING_ENABLE
+#define SW_LOGGING_ENABLE       0
 
 #define UART_BAUD_RATE   115200
 #define MB_BAUD_RATE     9600
