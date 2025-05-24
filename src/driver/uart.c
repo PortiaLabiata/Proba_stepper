@@ -7,6 +7,8 @@ struct UART_Handle {
     volatile uint8_t *cursor;
     volatile uint8_t command_ready;
     volatile uint32_t rx_left;
+    volatile uint32_t tx_left;
+    volatile uint8_t *cursor_tx;
 };
 
 /* Handle pool */
@@ -29,7 +31,7 @@ UART_Handle_t *UART_Init(USART_TypeDef *inst) {
     handle->command_ready = RESET;
     handle->instance = inst;
 
-    USART1->CR1 |= USART_CR1_RXNEIE; // Enable RXNE interrupt
+    USART1->CR1 |= (USART_CR1_RXNEIE | USART_CR1_TXEIE); // Enable interrupts
     return handle;
 }
 
@@ -71,6 +73,16 @@ UART_Status_t UART_Recieve(UART_Handle_t *handle, volatile uint8_t *pData, uint3
     return UART_OK;
 }
 
+UART_Status_t UART_Transmit_IT(UART_Handle_t *handle, volatile uint8_t *pData, uint32_t size) {
+    while (!(handle->instance->SR & USART_SR_TXE_Msk)) {
+        __NOP();
+    }
+    handle->cursor_tx = pData;
+    handle->tx_left = size - 1;
+    handle->instance->DR = *pData;
+    return UART_OK;
+}
+
 /* Getters/setters */
 
 uint8_t UART_GetCmdRdy(UART_Handle_t *handle) {
@@ -107,4 +119,10 @@ uint8_t UART_RecieveCallback(System_Context_t *ctx) {
         handle->command_ready = SET;
     }
    return SET;
+}
+
+UART_Status_t UART_TransmitCallback(UART_Handle_t *handle) {
+    if (handle->tx_left-- > 0) {
+        handle->instance->DR = *(handle->cursor_tx++);
+    }
 }

@@ -13,9 +13,13 @@ void TIM2_IRQHandler(void) {
     }
 }
 
-void EXTI4_IRQHandler(void) {
-    EXTI->PR = EXTI_PR_PIF4;
-    ppend = SET;
+void USART1_IRQHandler(void) {
+    if (USART1->SR & USART_SR_RXNE_Msk) {
+        UART_RecieveCallback(&ctx); // Legacy, remove context
+    }
+    if (USART1->SR & USART_SR_TXE_Msk) {
+        UART_TransmitCallback(ctx.uart_handle);
+    }
 }
 
 void HardFault_Handler(void) {
